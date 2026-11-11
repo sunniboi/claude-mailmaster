@@ -74,7 +74,11 @@ class Einrichtung:
     def __init__(self, wurzel):
         self.wurzel = wurzel
         self.wurzel.title(t("app_title"))
-        self.wurzel.geometry("600x700")
+        breite = max(self.wurzel.winfo_screenwidth() // 2, 600)
+        höhe = max(self.wurzel.winfo_screenheight() // 2, 640)
+        x = max((self.wurzel.winfo_screenwidth() - breite) // 2, 0)
+        y = max((self.wurzel.winfo_screenheight() - höhe) // 2, 0)
+        self.wurzel.geometry(f"{breite}x{höhe}+{x}+{y}")
         self.wurzel.minsize(560, 600)
         self.wurzel.configure(bg=BG)
         self.rahmen = tk.Frame(wurzel, bg=BG, padx=24, pady=20)
