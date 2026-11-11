@@ -9,6 +9,9 @@ Konfiguration über Umgebungsvariablen:
 
 import email
 import hmac
+import html
+import re
+from email.utils import parseaddr
 import imaplib
 import json
 import os
@@ -116,6 +119,11 @@ def _handy_benachrichtigen(titel, text, link):
     urllib.request.urlopen(anfrage, timeout=10).read()
 
 
+def _gültige_adresse(adresse):
+    name, reine_adresse = parseaddr(adresse)
+    return bool(name == "" and reine_adresse == adresse and re.fullmatch(r"[^@\s<>]+@[^@\s<>]+\.[^@\s<>]+", adresse))
+
+
 def send_mail(args):
     konten = konto_wählen(args.get("account"))
     if len(konten) != 1:
@@ -124,8 +132,10 @@ def send_mail(args):
     empfaenger = args.get("to", "").strip()
     betreff = args.get("subject", "").strip()
     text = args.get("body", "")
-    if not empfaenger or "@" not in empfaenger or not betreff:
-        raise ValueError("Empfänger (to) und Betreff (subject) sind Pflicht.")
+    if not betreff:
+        raise ValueError("Betreff (subject) ist Pflicht.")
+    if not _gültige_adresse(empfaenger):
+        raise ValueError("Empfänger ist keine gültige E-Mail-Adresse.")
     if konto.get("auto_send"):
         _mail_senden(konto, empfaenger, betreff, text)
         return f"Gesendet von {konto['user']} an {empfaenger}."
@@ -137,10 +147,29 @@ def send_mail(args):
     link = f"{PUBLIC_URL}/freigabe/{freigabe_id}/{geheim}"
     _handy_benachrichtigen(
         f"Mail senden? {konto['user']} → {empfaenger}",
-        f"Betreff: {betreff}\n\n{text[:500]}\n\nZum Freigeben auf den Link tippen (10 Minuten gültig).",
+        f"Betreff: {betreff}\n\nDie komplette Mail steht auf der Seite, die sich beim Tippen öffnet. 10 Minuten gültig.",
         link)
     return ("Die Mail wartet auf deine Freigabe auf dem Handy. "
             "Der Nutzer muss den Link in der Benachrichtigung öffnen. Sag dem Nutzer, dass er das tun muss.")
+
+
+def freigabe_seite(freigabe_id, geheim):
+    with _sperre:
+        eintrag = _offen.get(freigabe_id)
+        if eintrag is None or not hmac.compare_digest(eintrag["geheim"], geheim):
+            return "<h2>Freigabe nicht gefunden oder abgelaufen.</h2>"
+    if time.time() > eintrag["ablauf"]:
+        return "<h2>Freigabe abgelaufen. Bitte die Mail erneut anfragen.</h2>"
+    felder = {"Von": eintrag["konto"]["user"], "An": eintrag["an"], "Betreff": eintrag["betreff"]}
+    zeilen = "".join(f"<p><b>{html.escape(k)}:</b> {html.escape(v)}</p>" for k, v in felder.items())
+    pfad = f"/freigabe/{freigabe_id}/{geheim}"
+    return (f"<html><head><meta charset='utf-8'><title>MailMaster</title></head>"
+            f"<body style='font-family:sans-serif;max-width:640px;margin:2em auto'>"
+            f"<h2>Mail senden?</h2>{zeilen}"
+            f"<pre style='white-space:pre-wrap;background:#f3f3f3;padding:12px'>{html.escape(eintrag['text'])}</pre>"
+            f"<form method='post' action='{html.escape(pfad)}'>"
+            f"<button type='submit' style='padding:12px 24px;font-size:16px'>Ja, senden</button></form>"
+            f"</body></html>")
 
 
 def freigeben(freigabe_id, geheim):
@@ -217,7 +246,21 @@ class Handler(BaseHTTPRequestHandler):
         erwartet = f"/mcp/{TOKEN}"
         return bool(TOKEN) and hmac.compare_digest(self.path.split("?")[0].encode(), erwartet.encode())
 
+    def _html(self, inhalt):
+        daten = inhalt.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(daten)))
+        self.end_headers()
+        self.wfile.write(daten)
+
     def do_POST(self):
+        teile = urlparse(self.path).path.strip("/").split("/")
+        if len(teile) == 3 and teile[0] == "freigabe":
+            länge = int(self.headers.get("Content-Length", 0))
+            self.rfile.read(länge)
+            self._html(f"<html><head><meta charset='utf-8'></head><body style='font-family:sans-serif'><h2>{html.escape(freigeben(teile[1], teile[2]))}</h2></body></html>")
+            return
         if not self._pfad_gültig():
             self.send_response(404)
             self.end_headers()
@@ -244,13 +287,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         teile = urlparse(self.path).path.strip("/").split("/")
         if len(teile) == 3 and teile[0] == "freigabe":
-            ergebnis = freigeben(teile[1], teile[2])
-            daten = f"<html><body style='font-family:sans-serif'><h2>{ergebnis}</h2></body></html>".encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.send_header("Content-Length", str(len(daten)))
-            self.end_headers()
-            self.wfile.write(daten)
+            self._html(freigabe_seite(teile[1], teile[2]))
             return
         self.send_response(404)
         self.end_headers()
