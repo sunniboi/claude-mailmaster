@@ -19,7 +19,7 @@ KONFIG = Path(os.environ.get("MAIL_READER_CONFIG", Path.home() / ".config/mail-r
 
 def konten():
     if not KONFIG.exists():
-        raise ValueError(f"Konfiguration fehlt: {KONFIG}")
+        raise ValueError("Noch kein Postfach eingerichtet. Bitte /mail-reader:setup ausführen.")
     return json.loads(KONFIG.read_text(encoding="utf-8"))
 
 
@@ -29,7 +29,7 @@ def konto_wählen(name):
         return alle
     treffer = [k for k in alle if k["label"] == name or k["user"] == name]
     if not treffer:
-        raise ValueError(f"Konto nicht gefunden: {name}")
+        raise ValueError(f"Konto nicht gefunden: {name}. Bitte /mail-reader:setup ausführen.")
     return treffer
 
 

@@ -19,6 +19,10 @@ Dieser Skill nutzt die MCP-Werkzeuge des Plugins `mail-reader`.
 3. Wenn der Nutzer nur ein Postfach meint, `account` mit Label oder Adresse setzen.
 4. Ergebnis kurz zusammenfassen. Bei Codes den Code und den Absender nennen.
 
+## Einrichtung
+
+Wenn noch kein Postfach eingerichtet ist, sag dem Nutzer, dass er `/mail-reader:setup` ausführen soll.
+
 ## Grenzen
 
 - Es werden nur Mails aus dem Posteingang gelesen, nichts wird gesendet oder verändert.
