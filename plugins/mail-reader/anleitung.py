@@ -1,19 +1,39 @@
 """Schritt-für-Schritt-Anleitung für App-Passwörter, öffnet die Anbieterseite im Browser."""
 
+import os
 import shutil
 import subprocess
+import sys
+import webbrowser
 
-CHROME_PROGRAMME = ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"]
+CHROME_PFADE = {
+    "linux": ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"],
+    "darwin": ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"],
+    "win32": [
+        os.path.join(os.environ.get("ProgramFiles", r"C:\\Program Files"), r"Google\\Chrome\\Application\\chrome.exe"),
+        os.path.join(os.environ.get("ProgramFiles(x86)", r"C:\\Program Files (x86)"), r"Google\\Chrome\\Application\\chrome.exe"),
+        os.path.join(os.environ.get("LOCALAPPDATA", ""), r"Google\\Chrome\\Application\\chrome.exe"),
+    ],
+}
+
+
+def chrome_finden():
+    for pfad in CHROME_PFADE.get(sys.platform, CHROME_PFADE["linux"]):
+        gefunden = shutil.which(pfad) if os.sep not in pfad else (pfad if os.path.exists(pfad) else None)
+        if gefunden:
+            return gefunden
+    return None
 
 
 def öffne_in_chrome(url):
-    for programm in CHROME_PROGRAMME:
-        pfad = shutil.which(programm)
-        if pfad:
-            subprocess.Popen([pfad, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            return True
-    print("Chrome wurde nicht gefunden. Bitte die Seite manuell öffnen:", url)
+    chrome = chrome_finden()
+    if chrome:
+        subprocess.Popen([chrome, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True
+    print("Chrome ist nicht installiert, die Seite öffnet sich im Standardbrowser.")
+    webbrowser.open(url)
     return False
+
 
 APP_PASSWORT_ANLEITUNG = {
     "gmail": {
