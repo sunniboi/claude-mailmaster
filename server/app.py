@@ -146,8 +146,8 @@ def send_mail(args):
                                "betreff": betreff, "text": text, "ablauf": time.time() + FREIGABE_GÜLTIG}
     link = f"{PUBLIC_URL}/freigabe/{freigabe_id}/{geheim}"
     _handy_benachrichtigen(
-        f"Mail senden? {konto['user']} → {empfaenger}",
-        f"Betreff: {betreff}\n\nDie komplette Mail steht auf der Seite, die sich beim Tippen öffnet. 10 Minuten gültig.",
+        "MailMaster: Mail senden?",
+        f"Von: {konto['user']}\nAn: {empfaenger}\nBetreff: {betreff}\n\nDie komplette Mail steht auf der Seite, die sich beim Tippen öffnet. 10 Minuten gültig.",
         link)
     return ("Die Mail wartet auf deine Freigabe auf dem Handy. "
             "Der Nutzer muss den Link in der Benachrichtigung öffnen. Sag dem Nutzer, dass er das tun muss.")
