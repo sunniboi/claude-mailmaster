@@ -102,31 +102,6 @@ def postausgang(konto):
     return konto
 
 
-def postausgang(konto):
-    if not konto.get("smtp_host"):
-        gefunden = erkenne_server(konto["user"].split("@", 1)[1].lower())
-        konto = {**konto, **gefunden}
-    return konto
-
-
-def nutzer_bestätigt(text):
-    try:
-        import tkinter as tk
-        from tkinter import messagebox
-    except ImportError:
-        return False
-    try:
-        wurzel = tk.Tk()
-    except tk.TclError:
-        return False
-    wurzel.withdraw()
-    wurzel.attributes("-topmost", True)
-    try:
-        return messagebox.askyesno("Mail senden?", text + "\n\nJetzt senden?", icon="warning", parent=wurzel)
-    finally:
-        wurzel.destroy()
-
-
 def send_mail(args):
     konten_gefunden = konto_wählen(args.get("account"))
     if len(konten_gefunden) != 1:
