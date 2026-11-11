@@ -102,6 +102,9 @@ def einrichten():
         passwoerter[adresse] = passwort
         speichere_geschützt(KONFIG, konten)
         speichere_geschützt(PASSWORT_DATEI, passwoerter)
+        print(f"{adresse} ist verbunden und gespeichert.")
+        if input("\nNoch eine E-Mail-Adresse einrichten?\n  1) Beenden\n  2) Weitere einrichten\nWahl: ").strip() != "2":
+            break
     print(f"\nFertig: {len(konten)} Postfächer gespeichert in {ORDNER}")
 
 
