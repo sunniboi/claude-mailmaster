@@ -67,6 +67,13 @@ def teste_anmeldung(server, adresse, passwort):
 
 
 def main():
+    try:
+        einrichten()
+    except (KeyboardInterrupt, EOFError):
+        print("\nAbgebrochen. Bereits eingerichtete Postfächer sind gespeichert.")
+
+
+def einrichten():
     konten = json.loads(KONFIG.read_text(encoding="utf-8")) if KONFIG.exists() else []
     passwoerter = lade(PASSWORT_DATEI)
     print("Mail-Reader einrichten. Bei der Adresse leer lassen, um fertig zu werden.")
@@ -93,8 +100,8 @@ def main():
         konten = [k for k in konten if k["user"] != adresse]
         konten.append({"label": adresse, "host": server["host"], "port": server["port"], "user": adresse})
         passwoerter[adresse] = passwort
-    speichere_geschützt(KONFIG, konten)
-    speichere_geschützt(PASSWORT_DATEI, passwoerter)
+        speichere_geschützt(KONFIG, konten)
+        speichere_geschützt(PASSWORT_DATEI, passwoerter)
     print(f"\nFertig: {len(konten)} Postfächer gespeichert in {ORDNER}")
 
 
