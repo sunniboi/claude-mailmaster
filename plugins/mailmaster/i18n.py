@@ -502,6 +502,23 @@ for _kürzel, _werte in {
     SPRACHEN[_kürzel].update(dict(zip(['upd_title', 'upd_text', 'upd_done'], _werte)))
 
 
+for _kürzel, _werte in {
+    "de": ('Ohne Bestätigung senden', 'Achtung', 'Mit dieser Einstellung kann Claude Mails von diesem Konto senden, ohne dass du zustimmst. Eine manipulierte Mail könnte das ausnutzen. Wirklich einschalten?'),
+    "en": ('Send without confirmation', 'Warning', 'With this setting Claude can send mail from this account without your approval. A manipulated email could exploit this. Really turn it on?'),
+    "fr": ('Envoyer sans confirmation', 'Attention', 'Avec ce réglage, Claude peut envoyer des mails depuis ce compte sans votre accord. Un mail manipulé pourrait en profiter. Vraiment activer ?'),
+    "es": ('Enviar sin confirmación', 'Atención', 'Con este ajuste, Claude puede enviar correos desde esta cuenta sin tu aprobación. Un correo manipulado podría aprovecharlo. ¿Activarlo de verdad?'),
+    "it": ('Invia senza conferma', 'Attenzione', 'Con questa impostazione Claude può inviare mail da questo account senza la tua approvazione. Una mail manipolata potrebbe sfruttarlo. Attivarlo davvero?'),
+    "pt": ('Enviar sem confirmação', 'Atenção', 'Com esta definição, o Claude pode enviar e-mails desta conta sem a sua aprovação. Um e-mail manipulado poderia aproveitar-se disso. Ativar mesmo?'),
+    "nl": ('Verzenden zonder bevestiging', 'Let op', 'Met deze instelling kan Claude mail vanaf dit account verzenden zonder jouw goedkeuring. Een gemanipuleerde mail kan dat misbruiken. Echt inschakelen?'),
+    "pl": ('Wysyłaj bez potwierdzenia', 'Uwaga', 'Przy tym ustawieniu Claude może wysyłać wiadomości z tego konta bez twojej zgody. Zmanipulowana wiadomość mogłaby to wykorzystać. Naprawdę włączyć?'),
+    "sv": ('Skicka utan bekräftelse', 'Varning', 'Med den här inställningen kan Claude skicka mail från kontot utan ditt godkännande. Ett manipulerat mail kan utnyttja det. Vill du verkligen aktivera?'),
+    "da": ('Send uden bekræftelse', 'Advarsel', 'Med denne indstilling kan Claude sende mails fra kontoen uden din godkendelse. En manipuleret mail kan udnytte det. Vil du virkelig aktivere?'),
+    "fi": ('Lähetä ilman vahvistusta', 'Varoitus', 'Tällä asetuksella Claude voi lähettää viestejä tältä tililtä ilman hyväksyntääsi. Manipuloitu viesti voi hyödyntää tätä. Otetaanko todella käyttöön?'),
+    "cs": ('Odesílat bez potvrzení', 'Pozor', 'S tímto nastavením může Claude odesílat e-maily z tohoto účtu bez tvého souhlasu. Manipulovaný e-mail to může zneužít. Opravdu zapnout?'),
+}.items():
+    SPRACHEN[_kürzel].update(dict(zip(['auto_label', 'auto_title', 'auto_text'], _werte)))
+
+
 def sprache():
     kandidaten = [os.environ.get(v, "") for v in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG")]
     try:

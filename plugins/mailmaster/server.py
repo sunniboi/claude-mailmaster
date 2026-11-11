@@ -115,7 +115,7 @@ def send_mail(args):
         f"VORSCHAU (noch nicht gesendet)\n"
         f"Von: {konto['user']}\nAn: {empfaenger}\nBetreff: {betreff}\n\n{text}"
     )
-    if not nutzer_bestätigt(konto["user"], empfaenger, betreff, text):
+    if not konto.get("auto_send") and not nutzer_bestätigt(konto["user"], empfaenger, betreff, text):
         return "Abgebrochen. Der Nutzer hat das Senden nicht bestätigt, es wurde nichts gesendet."
 
     server = postausgang(konto)
