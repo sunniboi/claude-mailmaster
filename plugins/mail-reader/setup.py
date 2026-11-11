@@ -1,37 +1,52 @@
 #!/usr/bin/env python3
-"""Einrichtung für mail-reader: fragt Postfächer und Passwörter ab und speichert sie lokal."""
+"""Einrichtung für mail-reader wie in Thunderbird: Adresse und Passwort eingeben, Server werden automatisch gefunden."""
 
 import getpass
+import imaplib
 import json
 import os
+import ssl
+import urllib.request
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ORDNER = Path.home() / ".config/mail-reader"
 KONFIG = ORDNER / "accounts.json"
 PASSWORT_DATEI = ORDNER / "passwords.json"
 
-ANBIETER = {
-    "1": ("Gmail / Google Workspace", "imap.gmail.com", "App-Passwort nötig: myaccount.google.com → Sicherheit → App-Passwörter"),
-    "2": ("Freenet", "imap.freenet.de", "IMAP muss in den Freenet-Einstellungen aktiviert sein"),
-    "3": ("GMX", "imap.gmx.net", "IMAP in den GMX-Einstellungen aktivieren"),
-    "4": ("web.de", "imap.web.de", "IMAP in den web.de-Einstellungen aktivieren"),
-    "5": ("Anderer Anbieter", None, "IMAP-Server des Anbieters eingeben"),
-}
+
+def lade_xml(url):
+    try:
+        with urllib.request.urlopen(url, timeout=8) as antwort:
+            return ET.fromstring(antwort.read())
+    except Exception:
+        return None
 
 
-def frage_anbieter():
-    print("\nAnbieter wählen:")
-    for nummer, (name, host, _) in ANBIETER.items():
-        print(f"  {nummer}) {name}")
-    while True:
-        wahl = input("Nummer: ").strip()
-        if wahl in ANBIETER:
-            return ANBIETER[wahl]
-        print("Bitte eine Nummer von 1 bis 5 wählen.")
+def imap_aus_xml(wurzel):
+    server = wurzel.find(".//incomingServer[@type='imap']")
+    if server is None:
+        return None
+    return {"host": server.findtext("hostname"), "port": int(server.findtext("port") or 993)}
+
+
+def erkenne_server(domain):
+    quellen = [
+        f"https://autoconfig.thunderbird.net/v1.1/{domain}",
+        f"https://autoconfig.{domain}/mail/config-v1.1.xml",
+        f"https://{domain}/.well-known/autoconfig/mail/config-v1.1.xml",
+    ]
+    for url in quellen:
+        wurzel = lade_xml(url)
+        if wurzel is not None:
+            gefunden = imap_aus_xml(wurzel)
+            if gefunden and gefunden["host"]:
+                return gefunden
+    return {"host": f"imap.{domain}", "port": 993}
 
 
 def lade(datei):
-    return json.loads(datei.read_text(encoding="utf-8")) if datei.exists() else []
+    return json.loads(datei.read_text(encoding="utf-8")) if datei.exists() else {}
 
 
 def speichere_geschützt(datei, daten):
@@ -41,26 +56,43 @@ def speichere_geschützt(datei, daten):
         json.dump(daten, f, indent=2, ensure_ascii=False)
 
 
+def teste_anmeldung(server, adresse, passwort):
+    try:
+        imap = imaplib.IMAP4_SSL(server["host"], server["port"], ssl_context=ssl.create_default_context())
+        imap.login(adresse, passwort)
+        imap.logout()
+        return None
+    except Exception as e:
+        return str(e)
+
+
 def main():
-    konten = lade(KONFIG)
-    passwoerter = json.loads(PASSWORT_DATEI.read_text(encoding="utf-8")) if PASSWORT_DATEI.exists() else {}
+    konten = json.loads(KONFIG.read_text(encoding="utf-8")) if KONFIG.exists() else []
+    passwoerter = lade(PASSWORT_DATEI)
     print("Mail-Reader einrichten. Bei der Adresse leer lassen, um fertig zu werden.")
     while True:
-        name, host, hinweis = frage_anbieter()
-        if host is None:
-            host = input("IMAP-Server (z. B. imap.example.com): ").strip()
-        adresse = input("E-Mail-Adresse: ").strip()
+        adresse = input("\nE-Mail-Adresse: ").strip()
         if not adresse:
             break
-        print(f"Hinweis: {hinweis}")
+        if "@" not in adresse:
+            print("Das sieht nicht nach einer E-Mail-Adresse aus.")
+            continue
+        domain = adresse.split("@", 1)[1].lower()
+        print(f"Suche Server für {domain} ...")
+        server = erkenne_server(domain)
+        print(f"Gefunden: {server['host']}:{server['port']}")
+        if "gmail" in domain or server["host"].endswith("gmail.com"):
+            print("Hinweis: Bei Gmail brauchst du ein App-Passwort (myaccount.google.com → Sicherheit → App-Passwörter).")
         passwort = getpass.getpass("Passwort (unsichtbar): ")
-        konto = {"label": f"{name} – {adresse}", "host": host, "port": 993, "user": adresse}
-        konten = [k for k in konten if k["user"] != adresse] + [konto]
-        if passwort:
-            passwoerter[adresse] = passwort
-        weiter = input("Noch ein Postfach? [j/N] ").strip().lower()
-        if weiter != "j":
-            break
+        fehler = teste_anmeldung(server, adresse, passwort)
+        if fehler:
+            print(f"Anmeldung fehlgeschlagen: {fehler}")
+            print("Prüfe Passwort, App-Passwort und ob IMAP beim Anbieter aktiviert ist.")
+            continue
+        print("Anmeldung erfolgreich.")
+        konten = [k for k in konten if k["user"] != adresse]
+        konten.append({"label": adresse, "host": server["host"], "port": server["port"], "user": adresse})
+        passwoerter[adresse] = passwort
     speichere_geschützt(KONFIG, konten)
     speichere_geschützt(PASSWORT_DATEI, passwoerter)
     print(f"\nFertig: {len(konten)} Postfächer gespeichert in {ORDNER}")
