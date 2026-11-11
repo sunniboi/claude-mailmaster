@@ -19,6 +19,19 @@ Beim ersten Start öffnet sich das Einrichtungsfenster automatisch, wenn noch ke
 
 Im Fenster E-Mail-Adresse eingeben, der Server wird automatisch gefunden, dann das Passwort einfügen und „Testen und speichern“ klicken. Bei Gmail und Yahoo braucht es ein App-Passwort, die Schritte stehen im Fenster.
 
+## So benutzt du es im Chat
+
+Einfach in Claude schreiben, was du wissen willst, zum Beispiel:
+
+- „Zeig mir meine ungelesenen Mails.“
+- „Gibt es neue Mails von Amazon?“
+- „Suche Mails mit dem Betreff Rechnung von dieser Woche.“
+- „Schreib an test@example.com: Betreff Hallo, Text: Wie geht es dir?“
+
+Beim Senden erscheint vorher ein Fenster mit Absender, Empfänger, Betreff und Text. Erst nach deinem Ja geht die Mail raus.
+
+Das Plugin zeigt Absender, Datum und Betreff. Den vollständigen Mailtext liest es derzeit nicht vor.
+
 ## Update
 
     /plugin marketplace update mailmaster-plugins
