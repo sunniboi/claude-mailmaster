@@ -1,6 +1,6 @@
 {
   "name": "mailmaster",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Liest E-Mails aus beliebigen IMAP-Postfächern (Gmail, Freenet, GMX, web.de, eigene Domains) direkt in Claude",
   "author": {
     "name": "sunniboi"
