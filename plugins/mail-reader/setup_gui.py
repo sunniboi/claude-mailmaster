@@ -76,7 +76,23 @@ class Einrichtung:
         tk.Button(self.rahmen, text="Weiter", command=self.weiter).pack(anchor="e")
         self.status = tk.Label(self.rahmen, text=f"{len(self.konten)} Postfach/Postfächer eingerichtet", fg="gray")
         self.status.pack(anchor="w", pady=(20, 0))
-        tk.Button(self.rahmen, text="Fertig", command=self.wurzel.destroy).pack(anchor="w", pady=(8, 0))
+        liste = tk.Frame(self.rahmen)
+        liste.pack(fill="x", pady=(6, 0))
+        for konto in self.konten:
+            zeile = tk.Frame(liste)
+            zeile.pack(fill="x", pady=1)
+            tk.Label(zeile, text=f"{konto['user']}  ({konto['host']})", anchor="w").pack(side="left", fill="x", expand=True)
+            tk.Button(zeile, text="Löschen", command=lambda k=konto: self.konto_löschen(k)).pack(side="right")
+        tk.Button(self.rahmen, text="Fertig", command=self.wurzel.destroy).pack(anchor="w", pady=(12, 0))
+
+    def konto_löschen(self, konto):
+        if not messagebox.askyesno("Löschen", f"{konto['user']} aus der Einrichtung entfernen?"):
+            return
+        self.konten = [k for k in self.konten if k["user"] != konto["user"]]
+        self.passwoerter.pop(konto["user"], None)
+        speichere_geschützt(KONFIG, self.konten)
+        speichere_geschützt(PASSWORT_DATEI, self.passwoerter)
+        self.adresse_feld()
 
     def weiter(self):
         adresse = self.adresse.get().strip()
