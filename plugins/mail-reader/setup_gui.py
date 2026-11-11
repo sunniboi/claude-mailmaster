@@ -27,6 +27,28 @@ def hinweis_für(domain, host):
     return "Prüfe, ob IMAP beim Anbieter aktiviert ist. Bei Problemen ein App-Passwort verwenden."
 
 
+def mit_einfügen(feld):
+    def einfügen(_=None):
+        try:
+            feld.insert(tk.INSERT, feld.clipboard_get())
+        except tk.TclError:
+            pass
+        return "break"
+
+    menü = tk.Menu(feld, tearoff=0)
+    menü.add_command(label="Einfügen", command=einfügen)
+
+    def menü_zeigen(ereignis):
+        menü.tk_popup(ereignis.x_root, ereignis.y_root)
+
+    feld.bind("<Control-v>", einfügen)
+    feld.bind("<Control-V>", einfügen)
+    feld.bind("<Control-Shift-V>", einfügen)
+    feld.bind("<Button-3>", menü_zeigen)
+    feld.bind("<Button-2>", menü_zeigen)
+    return feld
+
+
 class Einrichtung:
     def __init__(self, wurzel):
         self.wurzel = wurzel
@@ -46,7 +68,7 @@ class Einrichtung:
     def adresse_feld(self):
         self.leeren()
         tk.Label(self.rahmen, text="E-Mail-Adresse", font=("", 12, "bold")).pack(anchor="w")
-        self.adresse = tk.Entry(self.rahmen, width=45)
+        self.adresse = mit_einfügen(tk.Entry(self.rahmen, width=45))
         self.adresse.pack(fill="x", pady=(4, 12))
         self.adresse.focus_set()
         self.adresse.bind("<Return>", lambda e: self.weiter())
@@ -79,7 +101,7 @@ class Einrichtung:
             tk.Button(self.rahmen, text="Seite im Browser öffnen", command=lambda: öffne_in_chrome(anleitung["url"])).pack(anchor="w", pady=(0, 10))
             öffne_in_chrome(anleitung["url"])
         tk.Label(self.rahmen, text="Passwort (App-Passwort, falls nötig)").pack(anchor="w")
-        self.passwort = tk.Entry(self.rahmen, show="•", width=45)
+        self.passwort = mit_einfügen(tk.Entry(self.rahmen, show="•", width=45))
         self.passwort.pack(fill="x", pady=(4, 12))
         self.passwort.focus_set()
         self.passwort.bind("<Return>", lambda e: self.speichern())
