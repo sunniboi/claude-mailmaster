@@ -64,18 +64,26 @@ def search_mail(args):
     maximum = min(max(int(args.get("max_results", 5)), 1), 50)
     ausgabe = []
     for konto in konto_wählen(args.get("account")):
-        imap = verbinde(konto)
+        ausgabe.append(f"=== {konto['label']} ({konto['user']}) ===")
+        try:
+            imap = verbinde(konto)
+        except Exception as fehler:
+            ausgabe.append(f"  Fehler: {fehler}")
+            continue
         try:
             imap.select("INBOX", readonly=True)
             _, daten = imap.search(None, suche)
             ids = daten[0].split()[-maximum:]
-            ausgabe.append(f"=== {konto['label']} ({konto['user']}) ===")
+            if not ids:
+                ausgabe.append("  Keine Mails gefunden.")
             for mail_id in reversed(ids):
                 _, teile = imap.fetch(mail_id, "(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT DATE)])")
                 kopf = email.message_from_bytes(teile[0][1])
                 ausgabe.append(
                     f"- {lesbar(kopf['Date'])}\n  Von: {lesbar(kopf['From'])}\n  Betreff: {lesbar(kopf['Subject'])}"
                 )
+        except Exception as fehler:
+            ausgabe.append(f"  Fehler beim Lesen: {fehler}")
         finally:
             imap.logout()
     return "\n".join(ausgabe)
