@@ -319,8 +319,12 @@ def move_mail(args):
         status, _ = imap.uid("COPY", uid, _ordner_name(nach))
         if status != "OK":
             return f"Verschieben fehlgeschlagen: {status}"
+        if "UIDPLUS" not in imap.capabilities:
+            imap.uid("STORE", uid, "-FLAGS", "(\\Deleted)")
+            return ("Verschoben kopiert, aber das Entfernen aus dem Quellordner wird vom Anbieter nicht sicher unterstützt. "
+                    "Die Mail bleibt im Quellordner, bitte dort manuell löschen.")
         imap.uid("STORE", uid, "+FLAGS", "(\\Deleted)")
-        imap.expunge()
+        imap.uid("EXPUNGE", uid)
         return f"Mail {uid} von '{von}' nach '{nach}' verschoben."
     finally:
         imap.logout()
