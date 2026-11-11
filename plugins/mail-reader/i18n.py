@@ -451,6 +451,23 @@ SPRACHEN = {
 }
 
 
+for _kürzel, _werte in {
+    "de": ('Mail senden?', 'Diese Mail jetzt senden?', 'Von', 'An', 'Betreff', 'Text', 'Ja, senden', 'Nein, abbrechen'),
+    "en": ('Send mail?', 'Send this mail now?', 'From', 'To', 'Subject', 'Text', 'Yes, send', 'No, cancel'),
+    "fr": ('Envoyer le mail ?', 'Envoyer ce mail maintenant ?', 'De', 'À', 'Objet', 'Texte', 'Oui, envoyer', 'Non, annuler'),
+    "es": ('¿Enviar el correo?', '¿Enviar este correo ahora?', 'De', 'Para', 'Asunto', 'Texto', 'Sí, enviar', 'No, cancelar'),
+    "it": ('Inviare la mail?', 'Inviare ora questa mail?', 'Da', 'A', 'Oggetto', 'Testo', 'Sì, invia', 'No, annulla'),
+    "pt": ('Enviar o e-mail?', 'Enviar agora este e-mail?', 'De', 'Para', 'Assunto', 'Texto', 'Sim, enviar', 'Não, cancelar'),
+    "nl": ('Mail verzenden?', 'Deze mail nu verzenden?', 'Van', 'Aan', 'Onderwerp', 'Tekst', 'Ja, verzenden', 'Nee, annuleren'),
+    "pl": ('Wysłać wiadomość?', 'Wysłać teraz tę wiadomość?', 'Od', 'Do', 'Temat', 'Treść', 'Tak, wyślij', 'Nie, anuluj'),
+    "sv": ('Skicka mailet?', 'Skicka det här mailet nu?', 'Från', 'Till', 'Ämne', 'Text', 'Ja, skicka', 'Nej, avbryt'),
+    "da": ('Send mailen?', 'Send denne mail nu?', 'Fra', 'Til', 'Emne', 'Tekst', 'Ja, send', 'Nej, annuller'),
+    "fi": ('Lähetetäänkö viesti?', 'Lähetetäänkö tämä viesti nyt?', 'Lähettäjä', 'Vastaanottaja', 'Aihe', 'Teksti', 'Kyllä, lähetä', 'Ei, peruuta'),
+    "cs": ('Odeslat e-mail?', 'Odeslat tento e-mail nyní?', 'Od', 'Komu', 'Předmět', 'Text', 'Ano, odeslat', 'Ne, zrušit'),
+}.items():
+    SPRACHEN[_kürzel].update(dict(zip(['send_title', 'send_question', 'send_from', 'send_to', 'send_subject', 'send_body', 'send_yes', 'send_no'], _werte)))
+
+
 def sprache():
     kandidaten = [os.environ.get(v, "") for v in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG")]
     try:
