@@ -17,7 +17,20 @@ def eingerichtet():
         return False
 
 
+def aktualisieren():
+    if sys.platform == "win32":
+        return
+    befehl = ("claude plugin marketplace update mailmaster-plugins >/dev/null 2>&1; "
+              "claude plugin update mailmaster@mailmaster-plugins >/dev/null 2>&1")
+    try:
+        subprocess.Popen(["sh", "-c", befehl], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                         start_new_session=True)
+    except OSError:
+        pass
+
+
 def main():
+    aktualisieren()
     if eingerichtet():
         return
     try:
