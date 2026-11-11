@@ -19,13 +19,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from setup import erkenne_server  # noqa: E402
 from bestaetigung import nutzer_bestätigt  # noqa: E402
+from geheimnisse import passwort_lesen  # noqa: E402
 
 KONFIG = Path(os.environ.get("MAIL_READER_CONFIG", Path.home() / ".config/mail-reader/accounts.json"))
 
 
 def konten():
     if not KONFIG.exists():
-        raise ValueError("Noch kein Postfach eingerichtet. Bitte /mail-reader:setup ausführen.")
+        raise ValueError("Noch kein Postfach eingerichtet. Bitte /mail-pilot:setup ausführen.")
     return json.loads(KONFIG.read_text(encoding="utf-8"))
 
 
@@ -35,16 +36,14 @@ def konto_wählen(name):
         return alle
     treffer = [k for k in alle if k["label"] == name or k["user"] == name]
     if not treffer:
-        raise ValueError(f"Konto nicht gefunden: {name}. Bitte /mail-reader:setup ausführen.")
+        raise ValueError(f"Konto nicht gefunden: {name}. Bitte /mail-pilot:setup ausführen.")
     return treffer
 
 
-PASSWORT_DATEI = Path.home() / ".config/mail-reader/passwords.json"
 
 
 def verbinde(konto):
-    passwoerter = json.loads(PASSWORT_DATEI.read_text(encoding="utf-8")) if PASSWORT_DATEI.exists() else {}
-    passwort = passwoerter.get(konto["user"])
+    passwort = passwort_lesen(konto["user"])
     if not passwort:
         raise ValueError(f"Kein Passwort gespeichert für {konto['user']}. Bitte setup.py ausführen.")
     imap = imaplib.IMAP4_SSL(konto["host"], konto.get("port", 993), ssl_context=ssl.create_default_context())
@@ -126,10 +125,9 @@ def send_mail(args):
     nachricht["Subject"] = betreff
     nachricht.set_content(text)
 
-    passwoerter = json.loads(PASSWORT_DATEI.read_text(encoding="utf-8")) if PASSWORT_DATEI.exists() else {}
-    passwort = passwoerter.get(konto["user"])
+    passwort = passwort_lesen(konto["user"])
     if not passwort:
-        raise ValueError(f"Kein Passwort gespeichert für {konto['user']}. Bitte /mail-reader:setup ausführen.")
+        raise ValueError(f"Kein Passwort gespeichert für {konto['user']}. Bitte /mail-pilot:setup ausführen.")
 
     kontext = ssl.create_default_context()
     if server.get("smtp_starttls", True):
@@ -212,7 +210,7 @@ def main():
                 antworte(id_, {
                     "protocolVersion": anfrage["params"].get("protocolVersion", "2025-06-18"),
                     "capabilities": {"tools": {}},
-                    "serverInfo": {"name": "mail-reader", "version": "0.4.0"},
+                    "serverInfo": {"name": "mail-pilot", "version": "0.4.0"},
                 })
             elif methode == "tools/list":
                 antworte(id_, {"tools": [

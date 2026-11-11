@@ -1,4 +1,4 @@
-# mail-reader
+# mail-pilot
 
 Claude-Plugin zum Lesen von E-Mails aus beliebigen IMAP-Postfächern (Gmail, Freenet, GMX, web.de und andere).
 
@@ -6,16 +6,16 @@ Claude-Plugin zum Lesen von E-Mails aus beliebigen IMAP-Postfächern (Gmail, Fre
 
 In Claude Code:
 
-    /plugin marketplace add sunniboi/claude-mail-reader
-    /plugin install mail-reader@mail-reader-plugins
+    /plugin marketplace add sunniboi/claude-mail-pilot
+    /plugin install mail-pilot@mail-pilot-plugins
 
 ## Einrichtung
 
 Einmal im Terminal ausführen:
 
-    python3 ~/Downloads/mail-reader-marketplace/plugins/mail-reader/setup.py
+    python3 ~/Downloads/mail-pilot-marketplace/plugins/mail-pilot/setup.py
 
-Das Skript fragt nur E-Mail-Adresse und Passwort ab und findet die Server selbst, wie Thunderbird. Die Passwörter landen in `~/.config/mail-reader/passwords.json` mit Dateirechten nur für dich. Gmail braucht ein App-Passwort, das normale Passwort funktioniert bei IMAP nicht.
+Das Skript fragt nur E-Mail-Adresse und Passwort ab und findet die Server selbst, wie Thunderbird. Die Passwörter landen in `~/.config/mail-pilot/passwords.json` mit Dateirechten nur für dich. Gmail braucht ein App-Passwort, das normale Passwort funktioniert bei IMAP nicht.
 
 Danach Claude Code neu starten.
 
@@ -26,7 +26,12 @@ Danach Claude Code neu starten.
 
 Das Plugin liest nur. Es sendet oder verändert keine Mails.
 
+## Hinweise
+
+- Getestet nur unter Linux. Windows und macOS sind **nicht getestet**.
+- Passwörter werden im Schlüsselbund des Systems gespeichert (Windows-Anmeldeinformationsverwaltung, macOS-Schlüsselbund, Linux Secret Service). Dafür installiert das Setup beim ersten Mal nach Zustimmung das Paket `keyring`.
+
 ## Sicherheit
 
 - Die Verbindung prüft das Server-Zertifikat.
-- Passwörter liegen nur lokal im Konfigurationsordner, nie im Repo.
+- Passwörter liegen nur im Schlüsselbund des Systems, nie im Repo und nie auf einem Server.

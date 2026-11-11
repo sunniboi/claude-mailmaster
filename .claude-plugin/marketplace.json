@@ -1,12 +1,12 @@
 {
-  "name": "mail-reader-plugins",
+  "name": "mail-pilot-plugins",
   "owner": {
     "name": "sunniboi"
   },
   "plugins": [
     {
-      "name": "mail-reader",
-      "source": "./plugins/mail-reader",
+      "name": "mail-pilot",
+      "source": "./plugins/mail-pilot",
       "description": "Liest E-Mails aus beliebigen IMAP-Postfächern direkt in Claude"
     }
   ]

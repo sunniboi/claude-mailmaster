@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Einrichtung für mail-reader wie in Thunderbird: Adresse und Passwort eingeben, Server werden automatisch gefunden."""
+"""Einrichtung für mail-pilot wie in Thunderbird: Adresse und Passwort eingeben, Server werden automatisch gefunden."""
 
 import getpass
 import imaplib
@@ -7,6 +7,8 @@ import json
 import os
 import ssl
 import urllib.request
+
+from geheimnisse import keyring_installieren, keyring_verfügbar, passwort_speichern
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -14,7 +16,6 @@ from anleitung import anbieter_schlüssel, anleitung, öffne_in_chrome
 
 ORDNER = Path.home() / ".config/mail-reader"
 KONFIG = ORDNER / "accounts.json"
-PASSWORT_DATEI = ORDNER / "passwords.json"
 
 
 def lade_xml(url):
@@ -86,8 +87,7 @@ def main():
 
 def einrichten():
     konten = json.loads(KONFIG.read_text(encoding="utf-8")) if KONFIG.exists() else []
-    passwoerter = lade(PASSWORT_DATEI)
-    print("Mail-Reader einrichten. Bei der Adresse leer lassen, um fertig zu werden.")
+    print("Mail-Pilot einrichten. Bei der Adresse leer lassen, um fertig zu werden.")
     while True:
         adresse = input("\nE-Mail-Adresse: ").strip()
         if not adresse:
@@ -113,11 +113,15 @@ def einrichten():
             print("Prüfe Passwort, App-Passwort und ob IMAP beim Anbieter aktiviert ist.")
             continue
         print("Anmeldung erfolgreich.")
+        if not keyring_verfügbar():
+            antwort = input("Sichere Passwortspeicherung braucht das Paket keyring. Jetzt installieren? [j/N] ")
+            if antwort.strip().lower() != "j" or not keyring_installieren():
+                print("Abgebrochen: Passwort wird aus Sicherheitsgründen nicht gespeichert.")
+                continue
+        passwort_speichern(adresse, passwort)
         konten = [k for k in konten if k["user"] != adresse]
         konten.append({"label": adresse, "user": adresse, **{k: v for k, v in server.items()}})
-        passwoerter[adresse] = passwort
         speichere_geschützt(KONFIG, konten)
-        speichere_geschützt(PASSWORT_DATEI, passwoerter)
         print(f"{adresse} ist verbunden und gespeichert.")
         if input("\nNoch eine E-Mail-Adresse einrichten?\n  1) Beenden\n  2) Weitere einrichten\nWahl: ").strip() != "2":
             break

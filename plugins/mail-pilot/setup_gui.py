@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Einrichtungsfenster für mail-reader im Jarvis-Stil."""
+"""Einrichtungsfenster für mail-pilot im Jarvis-Stil."""
 
 import imaplib
 import json
@@ -9,7 +9,8 @@ from tkinter import messagebox
 
 from anleitung import anbieter_schlüssel, anleitung, öffne_in_chrome
 from i18n import t
-from setup import erkenne_server, lade, speichere_geschützt, KONFIG, PASSWORT_DATEI
+from geheimnisse import keyring_installieren, keyring_verfügbar, passwort_speichern
+from setup import erkenne_server, speichere_geschützt, KONFIG
 
 BG = "#050b14"
 PANEL = "#0d1b2e"
@@ -79,7 +80,6 @@ class Einrichtung:
         self.rahmen = tk.Frame(wurzel, bg=BG, padx=24, pady=20)
         self.rahmen.pack(fill="both", expand=True)
         self.konten = json.loads(KONFIG.read_text(encoding="utf-8")) if KONFIG.exists() else []
-        self.passwoerter = lade(PASSWORT_DATEI)
         self.server = None
         self.adresse_wert = ""
         self.adresse_feld()
@@ -125,9 +125,12 @@ class Einrichtung:
         if not messagebox.askyesno(t("del_title"), t("del_text", adresse=konto["user"])):
             return
         self.konten = [k for k in self.konten if k["user"] != konto["user"]]
-        self.passwoerter.pop(konto["user"], None)
         speichere_geschützt(KONFIG, self.konten)
-        speichere_geschützt(PASSWORT_DATEI, self.passwoerter)
+        try:
+            import keyring
+            keyring.delete_password("mail-pilot", konto["user"])
+        except Exception:
+            pass
         self.adresse_feld()
 
     def weiter(self):
@@ -194,11 +197,14 @@ class Einrichtung:
         except Exception as fehler:
             messagebox.showerror(t("err_login_title"), t("err_login_text", error=fehler))
             return
+        if not keyring_verfügbar():
+            if not (messagebox.askyesno(t("kr_title"), t("kr_text")) and keyring_installieren()):
+                messagebox.showerror(t("kr_title"), t("kr_failed"))
+                return
+        passwort_speichern(self.adresse_wert, passwort)
         self.konten = [k for k in self.konten if k["user"] != self.adresse_wert]
         self.konten.append({"label": self.adresse_wert, "user": self.adresse_wert, **self.server})
-        self.passwoerter[self.adresse_wert] = passwort
         speichere_geschützt(KONFIG, self.konten)
-        speichere_geschützt(PASSWORT_DATEI, self.passwoerter)
         messagebox.showinfo(t("ok_title"), t("ok_text", adresse=self.adresse_wert))
         self.adresse_feld()
 
