@@ -485,6 +485,23 @@ for _kürzel, _werte in {
     SPRACHEN[_kürzel].update(dict(zip(['kr_title', 'kr_text', 'kr_failed'], _werte)))
 
 
+for _kürzel, _werte in {
+    "de": ('Update verfügbar', 'Eine neue Version von MailMaster ist verfügbar ({version}). Installiert ist {now}. Jetzt aktualisieren?', 'Das Update wird installiert. Es ist aktiv, nachdem Claude Code neu gestartet wurde.'),
+    "en": ('Update available', 'A new version of MailMaster is available ({version}). Installed: {now}. Update now?', 'The update is being installed. It becomes active after restarting Claude Code.'),
+    "fr": ('Mise à jour disponible', 'Une nouvelle version de MailMaster est disponible ({version}). Installée : {now}. Mettre à jour maintenant ?', 'La mise à jour est en cours. Elle sera active après le redémarrage de Claude Code.'),
+    "es": ('Actualización disponible', 'Hay una nueva versión de MailMaster ({version}). Instalada: {now}. ¿Actualizar ahora?', 'La actualización se está instalando. Estará activa tras reiniciar Claude Code.'),
+    "it": ('Aggiornamento disponibile', 'È disponibile una nuova versione di MailMaster ({version}). Installata: {now}. Aggiornare ora?', "L'aggiornamento è in corso. Sarà attivo dopo il riavvio di Claude Code."),
+    "pt": ('Atualização disponível', 'Está disponível uma nova versão do MailMaster ({version}). Instalada: {now}. Atualizar agora?', 'A atualização está a ser instalada. Fica ativa após reiniciar o Claude Code.'),
+    "nl": ('Update beschikbaar', 'Er is een nieuwe versie van MailMaster ({version}). Geïnstalleerd: {now}. Nu bijwerken?', 'De update wordt geïnstalleerd. Actief na het opnieuw starten van Claude Code.'),
+    "pl": ('Dostępna aktualizacja', 'Dostępna jest nowa wersja MailMaster ({version}). Zainstalowana: {now}. Zaktualizować teraz?', 'Aktualizacja jest instalowana. Będzie aktywna po ponownym uruchomieniu Claude Code.'),
+    "sv": ('Uppdatering tillgänglig', 'En ny version av MailMaster finns ({version}). Installerad: {now}. Uppdatera nu?', 'Uppdateringen installeras. Den blir aktiv när Claude Code startas om.'),
+    "da": ('Opdatering tilgængelig', 'Der findes en ny version af MailMaster ({version}). Installeret: {now}. Opdatér nu?', 'Opdateringen installeres. Den er aktiv, når Claude Code genstartes.'),
+    "fi": ('Päivitys saatavilla', 'MailMasterista on uusi versio ({version}). Asennettu: {now}. Päivitetäänkö nyt?', 'Päivitystä asennetaan. Se on käytössä, kun Claude Code käynnistetään uudelleen.'),
+    "cs": ('Dostupná aktualizace', 'Je k dispozici nová verze MailMaster ({version}). Nainstalováno: {now}. Aktualizovat nyní?', 'Aktualizace se instaluje. Projeví se po restartu Claude Code.'),
+}.items():
+    SPRACHEN[_kürzel].update(dict(zip(['upd_title', 'upd_text', 'upd_done'], _werte)))
+
+
 def sprache():
     kandidaten = [os.environ.get(v, "") for v in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG")]
     try:
