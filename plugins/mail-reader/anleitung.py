@@ -2,7 +2,6 @@
 
 import shutil
 import subprocess
-import webbrowser
 
 CHROME_PROGRAMME = ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"]
 
