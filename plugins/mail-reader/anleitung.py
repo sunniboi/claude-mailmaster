@@ -1,10 +1,12 @@
-"""Schritt-für-Schritt-Anleitung für App-Passwörter, öffnet die Anbieterseite im Browser."""
+"""App-Passwort-Anleitung für Gmail und Yahoo, öffnet die Anbieterseite in Chrome."""
 
 import os
 import shutil
 import subprocess
 import sys
 import webbrowser
+
+from i18n import t
 
 CHROME_PFADE = {
     "linux": ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"],
@@ -14,6 +16,11 @@ CHROME_PFADE = {
         os.path.join(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"), r"Google\Chrome\Application\chrome.exe"),
         os.path.join(os.environ.get("LOCALAPPDATA", ""), r"Google\Chrome\Application\chrome.exe"),
     ],
+}
+
+URLS = {
+    "gmail": "https://myaccount.google.com/apppasswords",
+    "yahoo": "https://login.yahoo.com/account/security",
 }
 
 
@@ -30,53 +37,20 @@ def öffne_in_chrome(url):
     if chrome:
         subprocess.Popen([chrome, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return True
-    print("Chrome ist nicht installiert, die Seite öffnet sich im Standardbrowser.")
     webbrowser.open(url)
     return False
 
 
-APP_PASSWORT_ANLEITUNG = {
-    "gmail": {
-        "url": "https://myaccount.google.com/apppasswords",
-        "titel": "Google: App-Passwort erstellen",
-        "schritte": [
-            "Die Seite öffnet sich. Melde dich mit deinem Google-Konto an, falls nötig.",
-            "Wenn dort steht „Bestätigung in zwei Schritten ist nicht aktiviert“: zuerst die Bestätigung in zwei Schritten einschalten, dann die Seite erneut öffnen.",
-            "Im Feld „App-Name“ z. B. „Mail-Reader“ eingeben und auf „Erstellen“ klicken.",
-            "Es erscheint ein 16-stelliges Passwort. Es wird nur einmal angezeigt: kopieren.",
-            "Hier im Setup beim Passwort genau dieses Passwort einfügen (Leerzeichen sind egal).",
-        ],
-    },
-    "yahoo": {
-        "url": "https://login.yahoo.com/account/security",
-        "titel": "Yahoo: App-Passwort erstellen",
-        "schritte": [
-            "Die Seite öffnet sich. Melde dich mit deinem Yahoo-Konto an, falls nötig.",
-            "Suche den Bereich „App-Passwörter“ bzw. „Apps verwalten“ und klicke auf „App-Passwort generieren“.",
-            "Als App-Name z. B. „Mail-Reader“ eingeben und bestätigen.",
-            "Es erscheint ein Passwort. Es wird nur einmal angezeigt: kopieren.",
-            "Hier im Setup beim Passwort genau dieses Passwort einfügen, nicht dein Yahoo-Login-Passwort.",
-        ],
-    },
-}
-
-
 def anbieter_schlüssel(host):
-    for schlüssel in APP_PASSWORT_ANLEITUNG:
+    for schlüssel in URLS:
         if schlüssel in host:
             return schlüssel
     return None
 
 
-def zeige_anleitung(host, öffnen=True):
-    schlüssel = anbieter_schlüssel(host)
-    if schlüssel is None:
-        return None
-    anleitung = APP_PASSWORT_ANLEITUNG[schlüssel]
-    print(f"\n{anleitung['titel']}")
-    for nummer, schritt in enumerate(anleitung["schritte"], 1):
-        print(f"  {nummer}. {schritt}")
-    if öffnen:
-        if öffne_in_chrome(anleitung["url"]):
-            print(f"  (Seite in Chrome geöffnet: {anleitung['url']})")
-    return anleitung["url"]
+def anleitung(schlüssel):
+    return {
+        "url": URLS[schlüssel],
+        "titel": t(f"{schlüssel}_title"),
+        "schritte": [t(f"{schlüssel}_{n}") for n in range(1, 6)],
+    }

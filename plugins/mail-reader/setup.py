@@ -10,7 +10,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from anleitung import zeige_anleitung
+from anleitung import anbieter_schlüssel, anleitung, öffne_in_chrome
 
 ORDNER = Path.home() / ".config/mail-reader"
 KONFIG = ORDNER / "accounts.json"
@@ -90,7 +90,13 @@ def einrichten():
         print(f"Suche Server für {domain} ...")
         server = erkenne_server(domain)
         print(f"Gefunden: {server['host']}:{server['port']}")
-        zeige_anleitung(server["host"])
+        schlüssel = anbieter_schlüssel(server["host"])
+        if schlüssel:
+            daten = anleitung(schlüssel)
+            print(daten["titel"])
+            for nummer, schritt in enumerate(daten["schritte"], 1):
+                print(f"  {nummer}. {schritt}")
+            öffne_in_chrome(daten["url"])
         passwort = getpass.getpass("Passwort (unsichtbar): ")
         fehler = teste_anmeldung(server, adresse, passwort)
         if fehler:
