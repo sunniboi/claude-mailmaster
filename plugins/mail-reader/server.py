@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
 """MCP-Server (stdio) zum Lesen von IMAP-Postfächern. Nur Standardbibliothek.
 
-Konfiguration: JSON-Datei mit einer Liste von Konten. Das Passwort steht nicht
-in der Datei, sondern in der Umgebungsvariablen, die bei "password_env" genannt ist.
-
-Beispiel ~/.config/mail-reader/accounts.json:
-[
-  {"label": "Gmail", "host": "imap.gmail.com", "port": 993,
-   "user": "name@gmail.com", "password_env": "MAIL_GMAIL_PASSWORD"}
-]
+Konfiguration wird mit setup.py erstellt: ~/.config/mail-reader/accounts.json
+(Konten) und ~/.config/mail-reader/passwords.json (Passwörter, nur für den Nutzer lesbar).
 """
 
 import email
@@ -42,18 +36,11 @@ def konto_wählen(name):
 PASSWORT_DATEI = Path.home() / ".config/mail-reader/passwords.json"
 
 
-def passwort_für(name):
-    if os.environ.get(name):
-        return os.environ[name]
-    if PASSWORT_DATEI.exists():
-        return json.loads(PASSWORT_DATEI.read_text(encoding="utf-8")).get(name)
-    return None
-
-
 def verbinde(konto):
-    passwort = passwort_für(konto["password_env"])
+    passwoerter = json.loads(PASSWORT_DATEI.read_text(encoding="utf-8")) if PASSWORT_DATEI.exists() else {}
+    passwort = passwoerter.get(konto["user"])
     if not passwort:
-        raise ValueError(f"Umgebungsvariable {konto['password_env']} ist nicht gesetzt")
+        raise ValueError(f"Kein Passwort gespeichert für {konto['user']}. Bitte setup.py ausführen.")
     imap = imaplib.IMAP4_SSL(konto["host"], konto.get("port", 993), ssl_context=ssl.create_default_context())
     imap.login(konto["user"], passwort)
     return imap

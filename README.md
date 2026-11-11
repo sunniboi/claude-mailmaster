@@ -1,30 +1,32 @@
 # mail-reader
 
-Claude-Plugin zum Lesen von E-Mails aus beliebigen IMAP-Postfächern (Gmail, Freenet, GMX, web.de, eigene Domains).
+Claude-Plugin zum Lesen von E-Mails aus beliebigen IMAP-Postfächern (Gmail, Freenet, GMX, web.de und andere).
 
 ## Installation
 
-    /plugin marketplace add <GITHUB-URL-DIESES-REPOS>
+In Claude Code:
+
+    /plugin marketplace add sunniboi/claude-mail-reader
     /plugin install mail-reader@mail-reader-plugins
 
 ## Einrichtung
 
-1. Konfigurationsdatei `~/.config/mail-reader/accounts.json` anlegen:
+Einmal im Terminal ausführen:
 
-        [
-          {"label": "Freenet", "host": "imap.freenet.de", "port": 993,
-           "user": "name@freenet.de", "password_env": "MAIL_FREENET_PASSWORD"}
-        ]
+    python3 ~/.claude/plugins/marketplaces/mail-reader-plugins/plugins/mail-reader/setup.py
 
-2. Passwort als Umgebungsvariable setzen (nie in der Datei speichern):
+Das Skript fragt Anbieter, E-Mail-Adresse und Passwort ab. Die Passwörter landen in `~/.config/mail-reader/passwords.json` mit Dateirechten nur für dich. Gmail braucht ein App-Passwort, das normale Passwort funktioniert bei IMAP nicht.
 
-        export MAIL_FREENET_PASSWORD='dein_passwort'
-
-3. Gmail braucht ein App-Passwort (Google-Konto → Sicherheit → App-Passwörter), das normale Passwort funktioniert bei IMAP nicht.
+Danach Claude Code neu starten.
 
 ## Werkzeuge
 
-- `list_accounts`: zeigt die konfigurierten Postfächer.
+- `list_accounts`: zeigt die eingerichteten Postfächer.
 - `search_mail`: sucht im Posteingang mit IMAP-Suche, z. B. `UNSEEN`, `FROM "amazon"`, `SINCE 10-Nov-2026`.
 
 Das Plugin liest nur. Es sendet oder verändert keine Mails.
+
+## Sicherheit
+
+- Die Verbindung prüft das Server-Zertifikat.
+- Passwörter liegen nur lokal im Konfigurationsordner, nie im Repo.
