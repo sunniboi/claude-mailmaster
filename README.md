@@ -1,57 +1,62 @@
 # MailMaster
 
-Claude-Plugin zum Lesen und Senden von E-Mails aus beliebigen IMAP-Postfächern (Gmail, Freenet, GMX, web.de, Yahoo und andere).
+Claude-Erweiterung zum Lesen und Senden von E-Mails aus eigenen Postfächern (Gmail, Yahoo, Freenet, web.de und andere mit IMAP).
 
-## Installation
+Es gibt zwei Varianten:
+
+| Variante | Wo es läuft | Für wen |
+|---|---|---|
+| **A: Plugin in Claude Code** | auf deinem Rechner | jeder, der Claude Code nutzt |
+| **B: Online-Server (Connector)** | auf einem Server bei Google Cloud | nur für den Betreiber und Nutzer, die das selbst aufsetzen |
+
+## A: Plugin in Claude Code
 
 In Claude Code eingeben:
 
     /plugin marketplace add sunniboi/claude-mailmaster
     /plugin install mailmaster@mailmaster-plugins
 
-Danach Claude Code neu starten.
+Danach Claude Code neu starten. Beim ersten Start öffnet sich das Einrichtungsfenster, wenn noch kein Postfach eingerichtet ist. Später über `/mailmaster:setup`.
 
-## Einrichtung
+Im Fenster E-Mail-Adresse eingeben. Der Server wird automatisch gefunden. Dann das Passwort eingeben und „Testen und speichern“ klicken.
 
-Beim ersten Start öffnet sich das Einrichtungsfenster automatisch, wenn noch kein Postfach eingerichtet ist. Später geht es über:
+**Updates:** Beim Start fragt das Plugin, ob eine neue Version installiert werden soll. Dafür erscheint ein Fenster.
 
-    /mailmaster:setup
+## B: Online-Server für Claude im Browser und am Handy
 
-Im Fenster E-Mail-Adresse eingeben, der Server wird automatisch gefunden, dann das Passwort einfügen und „Testen und speichern“ klicken. Bei Gmail und Yahoo braucht es ein App-Passwort, die Schritte stehen im Fenster.
+Diese Variante läuft auf einem Server bei Google Cloud. Claude im Browser und in der App spricht mit diesem Server. Sie ist technisch aufwendiger als Variante A.
 
-## So benutzt du es im Chat
+Einrichtung in Kurzform:
 
-Einfach in Claude schreiben, was du wissen willst, zum Beispiel:
+1. Ein Google-Cloud-Konto anlegen (Testzeitraum mit Guthaben, Kreditkarte zur Prüfung).
+2. Den Server über die Cloud Shell aus diesem Repo veröffentlichen (Ordner `server/`, Skript `update.py`).
+3. Die Postfächer mit App-Passwörtern eintragen (Skripte in der Cloud Shell).
+4. In Claude unter Einstellungen → Konnektoren einen benutzerdefinierten Konnektor mit der Server-Adresse anlegen. Authentifizierung: Keine.
 
-- „Zeig mir meine ungelesenen Mails.“
-- „Gibt es neue Mails von Amazon?“
-- „Suche Mails mit dem Betreff Rechnung von dieser Woche.“
-- „Schreib an test@example.com: Betreff Hallo, Text: Wie geht es dir?“
+Wichtig:
+- Die Passwörter liegen bei dieser Variante als Umgebungsvariablen im Google-Cloud-Projekt. Nur der Projekt-Besitzer kann sie sehen. Sie landen nie im Repo.
+- Die Server-Adresse enthält ein Geheimnis. Wer sie kennt, kann auf die Postfächer zugreifen. Nicht teilen.
 
-Beim Senden erscheint vorher ein Fenster mit Absender, Empfänger, Betreff und Text. Erst nach deinem Ja geht die Mail raus.
+## Senden
 
-Das Plugin zeigt Absender, Datum und Betreff. Den vollständigen Mailtext liest es derzeit nicht vor.
+- Claude zeigt dir die Mail im Chat (Absender, Empfänger, Betreff, Text).
+- Du schreibst **„absenden“**. Erst dann wird gesendet.
+- In Variante A kann pro Konto eine Bestätigung im Fenster verlangt werden. Das ist standardmäßig eingeschaltet.
 
-## Update
+## Lesen
 
-    /plugin marketplace update mailmaster-plugins
-    /plugin update mailmaster@mailmaster-plugins
+Mailtexte gelten als **unvertrauenswürdige Daten**. Eine Mail kann Anweisungen enthalten, die Claude nicht ausführen darf. Claude soll Mailinhalte nur anzeigen und zusammenfassen.
 
-Danach Claude Code neu starten.
-
-## Was es kann
-
-- Postfächer durchsuchen (ungelesene, Absender, Datum, Betreff)
-- Mails senden, aber nur nach Bestätigung im Fenster auf dem Bildschirm
-
-## Hinweise
+## Bekannte Einschränkungen
 
 - Getestet nur unter Linux. Windows und macOS sind **nicht getestet**.
-- Passwörter liegen im Schlüsselbund des Systems auf dem jeweiligen Rechner. Sie werden nie an einen Server oder in den Chat übertragen.
-- Die Einrichtung ist pro Rechner nötig.
-- Im Cloud-Chat und auf dem Handy funktioniert das Plugin nicht. Es läuft nur auf dem Rechner, auf dem es installiert ist.
+- Gmail und Yahoo brauchen ein App-Passwort, das normale Passwort funktioniert nicht.
+- web.de braucht ein App-Passwort, und IMAP muss in den web.de-Einstellungen aktiviert sein.
+- Freenet nutzt imap.freenet.de bzw. mx.freenet.de.
 
 ## Sicherheit
 
-- Die Verbindung prüft das Server-Zertifikat.
-- Jeder Versand braucht die Bestätigung in einem Fenster auf dem Bildschirm.
+- Variante A: Passwörter liegen im Schlüsselbund des Systems auf deinem Rechner.
+- Variante B: Passwörter liegen in Google Cloud Run. Freigaben sind nur für dich möglich.
+- Die Verbindung zum Mailserver prüft das Serverzertifikat.
+- Mails werden nie an Dritte weitergegeben. Die Server-Adresse aus Variante B gilt als Geheimnis.
