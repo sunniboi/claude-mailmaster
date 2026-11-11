@@ -136,7 +136,7 @@ def send_mail(args):
         raise ValueError("Betreff (subject) ist Pflicht.")
     if not _gültige_adresse(empfaenger):
         raise ValueError("Empfänger ist keine gültige E-Mail-Adresse.")
-    if konto.get("auto_send"):
+    if konto.get("auto_send") or os.environ.get("MAILMASTER_CHAT_FREIGABE") == "1":
         _mail_senden(konto, empfaenger, betreff, text)
         return f"Gesendet von {konto['user']} an {empfaenger}."
     freigabe_id = secrets.token_urlsafe(16)
