@@ -39,8 +39,19 @@ def konto_wählen(name):
     return treffer
 
 
+PASSWORT_DATEI = Path.home() / ".config/mail-reader/passwords.json"
+
+
+def passwort_für(name):
+    if os.environ.get(name):
+        return os.environ[name]
+    if PASSWORT_DATEI.exists():
+        return json.loads(PASSWORT_DATEI.read_text(encoding="utf-8")).get(name)
+    return None
+
+
 def verbinde(konto):
-    passwort = os.environ.get(konto["password_env"])
+    passwort = passwort_für(konto["password_env"])
     if not passwort:
         raise ValueError(f"Umgebungsvariable {konto['password_env']} ist nicht gesetzt")
     imap = imaplib.IMAP4_SSL(konto["host"], konto.get("port", 993), ssl_context=ssl.create_default_context())
