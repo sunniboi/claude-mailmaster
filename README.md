@@ -5,7 +5,7 @@ Claude-Plugin zum Lesen von E-Mails aus beliebigen IMAP-Postfächern (Gmail, Fre
 ## Installation
 
     /plugin marketplace add <GITHUB-URL-DIESES-REPOS>
-    /plugin install mail-reader@sunniboi-plugins
+    /plugin install mail-reader@mail-reader-plugins
 
 ## Einrichtung
 
