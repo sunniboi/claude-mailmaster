@@ -184,6 +184,34 @@ def freigeben(freigabe_id, geheim):
     return f"Gesendet von {eintrag['konto']['user']} an {eintrag['an']}."
 
 
+class _TextAusHtml(__import__("html.parser").parser.HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.teile = []
+        self.unterdrücken = False
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style"):
+            self.unterdrücken = True
+        if tag in ("br", "p", "div", "tr", "li"):
+            self.teile.append("\n")
+
+    def handle_endtag(self, tag):
+        if tag in ("script", "style"):
+            self.unterdrücken = False
+
+    def handle_data(self, daten):
+        if not self.unterdrücken:
+            self.teile.append(daten)
+
+
+def html_zu_text(html_text):
+    parser = _TextAusHtml()
+    parser.feed(html_text)
+    zeilen = [z.strip() for z in "".join(parser.teile).splitlines()]
+    return "\n".join(z for z in zeilen if z)
+
+
 def mail_text(roh):
     nachricht = email.message_from_bytes(roh)
     teile = []
@@ -192,7 +220,13 @@ def mail_text(roh):
             inhalt = teil.get_payload(decode=True) or b""
             teile.append(inhalt.decode(teil.get_content_charset() or "utf-8", errors="replace"))
     text = "\n".join(teile).strip()
-    return (text or "(Kein Klartext in dieser Mail, vermutlich nur HTML oder Anhang.)")[:20000]
+    if not text:
+        for teil in nachricht.walk():
+            if teil.get_content_type() == "text/html" and "attachment" not in str(teil.get("Content-Disposition", "")):
+                inhalt = teil.get_payload(decode=True) or b""
+                teile.append(html_zu_text(inhalt.decode(teil.get_content_charset() or "utf-8", errors="replace")))
+        text = "\n".join(teile).strip()
+    return (text or "(Keine lesbaren Inhalte in dieser Mail, vermutlich nur ein Anhang.)")[:20000]
 
 
 def read_mail(args):
