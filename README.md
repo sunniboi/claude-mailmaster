@@ -1,37 +1,44 @@
-# mailmaster
+# MailMaster
 
-Claude-Plugin zum Lesen von E-Mails aus beliebigen IMAP-Postfächern (Gmail, Freenet, GMX, web.de und andere).
+Claude-Plugin zum Lesen und Senden von E-Mails aus beliebigen IMAP-Postfächern (Gmail, Freenet, GMX, web.de, Yahoo und andere).
 
 ## Installation
 
-In Claude Code:
+In Claude Code eingeben:
 
     /plugin marketplace add sunniboi/claude-mailmaster
     /plugin install mailmaster@mailmaster-plugins
 
+Danach Claude Code neu starten.
+
 ## Einrichtung
 
-Einmal im Terminal ausführen:
+Beim ersten Start öffnet sich das Einrichtungsfenster automatisch, wenn noch kein Postfach eingerichtet ist. Später geht es über:
 
-    python3 ~/Downloads/mailmaster-marketplace/plugins/mailmaster/setup.py
+    /mailmaster:setup
 
-Das Skript fragt nur E-Mail-Adresse und Passwort ab und findet die Server selbst, wie Thunderbird. Die Passwörter landen in `~/.config/mailmaster/passwords.json` mit Dateirechten nur für dich. Gmail braucht ein App-Passwort, das normale Passwort funktioniert bei IMAP nicht.
+Im Fenster E-Mail-Adresse eingeben, der Server wird automatisch gefunden, dann das Passwort einfügen und „Testen und speichern“ klicken. Bei Gmail und Yahoo braucht es ein App-Passwort, die Schritte stehen im Fenster.
+
+## Update
+
+    /plugin marketplace update mailmaster-plugins
+    /plugin update mailmaster@mailmaster-plugins
 
 Danach Claude Code neu starten.
 
-## Werkzeuge
+## Was es kann
 
-- `list_accounts`: zeigt die eingerichteten Postfächer.
-- `search_mail`: sucht im Posteingang mit IMAP-Suche, z. B. `UNSEEN`, `FROM "amazon"`, `SINCE 10-Nov-2026`.
-
-Das Plugin liest nur. Es sendet oder verändert keine Mails.
+- Postfächer durchsuchen (ungelesene, Absender, Datum, Betreff)
+- Mails senden, aber nur nach Bestätigung im Fenster auf dem Bildschirm
 
 ## Hinweise
 
 - Getestet nur unter Linux. Windows und macOS sind **nicht getestet**.
-- Passwörter werden im Schlüsselbund des Systems gespeichert (Windows-Anmeldeinformationsverwaltung, macOS-Schlüsselbund, Linux Secret Service). Dafür installiert das Setup beim ersten Mal nach Zustimmung das Paket `keyring`.
+- Passwörter liegen im Schlüsselbund des Systems auf dem jeweiligen Rechner. Sie werden nie an einen Server oder in den Chat übertragen.
+- Die Einrichtung ist pro Rechner nötig.
+- Im Cloud-Chat und auf dem Handy funktioniert das Plugin nicht. Es läuft nur auf dem Rechner, auf dem es installiert ist.
 
 ## Sicherheit
 
 - Die Verbindung prüft das Server-Zertifikat.
-- Passwörter liegen nur im Schlüsselbund des Systems, nie im Repo und nie auf einem Server.
+- Jeder Versand braucht die Bestätigung in einem Fenster auf dem Bildschirm.
