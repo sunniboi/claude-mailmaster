@@ -53,7 +53,8 @@ class Einrichtung:
     def __init__(self, wurzel):
         self.wurzel = wurzel
         self.wurzel.title("Mail-Reader einrichten")
-        self.wurzel.geometry("460x330")
+        self.wurzel.geometry("560x640")
+        self.wurzel.minsize(520, 560)
         self.rahmen = tk.Frame(wurzel, padx=20, pady=20)
         self.rahmen.pack(fill="both", expand=True)
         self.konten = json.loads(KONFIG.read_text(encoding="utf-8")) if KONFIG.exists() else []
@@ -106,14 +107,22 @@ class Einrichtung:
             tk.Button(self.rahmen, text="Seite im Browser öffnen", command=lambda: öffne_in_chrome(anleitung["url"])).pack(anchor="w", pady=(0, 10))
             öffne_in_chrome(anleitung["url"])
         tk.Label(self.rahmen, text="Passwort (App-Passwort, falls nötig)").pack(anchor="w")
-        self.passwort = mit_einfügen(tk.Entry(self.rahmen, show="•", width=45))
-        self.passwort.pack(fill="x", pady=(4, 12))
+        passwort_zeile = tk.Frame(self.rahmen)
+        passwort_zeile.pack(fill="x", pady=(4, 12))
+        self.passwort = mit_einfügen(tk.Entry(passwort_zeile, show="•", width=40))
+        self.passwort.pack(side="left", fill="x", expand=True)
+        self.auge = tk.Button(passwort_zeile, text="👁", width=3, command=self.passwort_umschalten)
+        self.auge.pack(side="left", padx=(6, 0))
         self.passwort.focus_set()
         self.passwort.bind("<Return>", lambda e: self.speichern())
         zeile = tk.Frame(self.rahmen)
         zeile.pack(fill="x")
         tk.Button(zeile, text="Zurück", command=self.adresse_feld).pack(side="left")
         tk.Button(zeile, text="Testen und speichern", command=self.speichern).pack(side="right")
+
+    def passwort_umschalten(self):
+        verborgen = self.passwort.cget("show") == "•"
+        self.passwort.config(show="" if verborgen else "•")
 
     def speichern(self):
         passwort = self.passwort.get()
