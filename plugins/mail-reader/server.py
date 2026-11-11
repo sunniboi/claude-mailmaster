@@ -101,6 +101,24 @@ def postausgang(konto):
     return konto
 
 
+def nutzer_bestätigt(text):
+    try:
+        import tkinter as tk
+        from tkinter import messagebox
+    except ImportError:
+        return False
+    try:
+        wurzel = tk.Tk()
+    except tk.TclError:
+        return False
+    wurzel.withdraw()
+    wurzel.attributes("-topmost", True)
+    try:
+        return messagebox.askyesno("Mail senden?", text + "\n\nJetzt senden?", icon="warning", parent=wurzel)
+    finally:
+        wurzel.destroy()
+
+
 def send_mail(args):
     konten_gefunden = konto_wählen(args.get("account"))
     if len(konten_gefunden) != 1:
@@ -115,8 +133,8 @@ def send_mail(args):
         f"VORSCHAU (noch nicht gesendet)\n"
         f"Von: {konto['user']}\nAn: {empfaenger}\nBetreff: {betreff}\n\n{text}"
     )
-    if args.get("confirm") is not True:
-        return vorschau + "\n\nZum Senden muss der Nutzer ausdrücklich zustimmen. Erst danach confirm=true setzen."
+    if not nutzer_bestätigt(vorschau):
+        return "Abgebrochen. Der Nutzer hat das Senden nicht bestätigt, es wurde nichts gesendet."
 
     server = postausgang(konto)
     nachricht = EmailMessage()
@@ -146,10 +164,9 @@ def send_mail(args):
 WERKZEUGE = {
     "send_mail": {
         "beschreibung": (
-            "Sendet eine E-Mail von einem eingerichteten Konto. ZWEI SCHRITTE: "
-            "1) Zuerst OHNE confirm (oder confirm=false) aufrufen, dann dem Nutzer Vorschau zeigen. "
-            "2) Nur wenn der Nutzer ausdrücklich zustimmt, mit confirm=true erneut aufrufen. "
-            "Niemals ohne ausdrückliche Zustimmung des Nutzers confirm=true setzen."
+            "Sendet eine E-Mail von einem eingerichteten Konto. Auf dem Bildschirm des Nutzers "
+            "erscheint vorher ein Bestätigungsfenster mit Absender, Empfänger, Betreff und Text. "
+            "Die Mail wird nur gesendet, wenn der Nutzer dort selbst zustimmt. Vorher dem Nutzer den Inhalt nennen."
         ),
         "schema": {
             "type": "object",
@@ -158,7 +175,6 @@ WERKZEUGE = {
                 "to": {"type": "string", "description": "Empfänger-Adresse"},
                 "subject": {"type": "string", "description": "Betreff"},
                 "body": {"type": "string", "description": "Text der Mail"},
-                "confirm": {"type": "boolean", "description": "true nur nach ausdrücklicher Zustimmung des Nutzers"},
             },
             "required": ["account", "to", "subject", "body"],
         },
