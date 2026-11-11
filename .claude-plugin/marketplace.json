@@ -1,0 +1,13 @@
+{
+  "name": "sunniboi-plugins",
+  "owner": {
+    "name": "sunniboi"
+  },
+  "plugins": [
+    {
+      "name": "mail-reader",
+      "source": "./plugins/mail-reader",
+      "description": "Liest E-Mails aus beliebigen IMAP-Postfächern direkt in Claude"
+    }
+  ]
+}
