@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Einrichtungsfenster für mailbox im Jarvis-Stil."""
+"""Einrichtungsfenster für mailmaster im Jarvis-Stil."""
 
 import imaplib
 import json

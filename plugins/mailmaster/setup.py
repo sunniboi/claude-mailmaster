@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Einrichtung für mailbox wie in Thunderbird: Adresse und Passwort eingeben, Server werden automatisch gefunden."""
+"""Einrichtung für mailmaster wie in Thunderbird: Adresse und Passwort eingeben, Server werden automatisch gefunden."""
 
 import getpass
 import imaplib
@@ -87,7 +87,7 @@ def main():
 
 def einrichten():
     konten = json.loads(KONFIG.read_text(encoding="utf-8")) if KONFIG.exists() else []
-    print("Mailbox einrichten. Bei der Adresse leer lassen, um fertig zu werden.")
+    print("MailMaster einrichten. Bei der Adresse leer lassen, um fertig zu werden.")
     while True:
         adresse = input("\nE-Mail-Adresse: ").strip()
         if not adresse:

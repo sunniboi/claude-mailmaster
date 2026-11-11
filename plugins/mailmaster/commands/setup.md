@@ -2,7 +2,7 @@
 description: Postfächer einrichten (öffnet ein Fenster, in dem man E-Mail-Adresse und Passwort eingibt)
 ---
 
-Starte das Einrichtungsfenster für mailbox, indem du diesen Befehl im Hintergrund ausführst:
+Starte das Einrichtungsfenster für mailmaster, indem du diesen Befehl im Hintergrund ausführst:
 
 ```bash
 nohup python3 "${CLAUDE_PLUGIN_ROOT}/setup_gui.py" >/dev/null 2>&1 &

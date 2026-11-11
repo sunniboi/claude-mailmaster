@@ -1,5 +1,5 @@
 {
-  "name": "mailbox",
+  "name": "mailmaster",
   "version": "0.5.2",
   "description": "Liest E-Mails aus beliebigen IMAP-Postfächern (Gmail, Freenet, GMX, web.de, eigene Domains) direkt in Claude",
   "author": {

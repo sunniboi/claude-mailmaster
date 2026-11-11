@@ -26,7 +26,7 @@ KONFIG = Path(os.environ.get("MAIL_READER_CONFIG", Path.home() / ".config/mail-r
 
 def konten():
     if not KONFIG.exists():
-        raise ValueError("Noch kein Postfach eingerichtet. Bitte /mailbox:setup ausführen.")
+        raise ValueError("Noch kein Postfach eingerichtet. Bitte /mailmaster:setup ausführen.")
     return json.loads(KONFIG.read_text(encoding="utf-8"))
 
 
@@ -36,7 +36,7 @@ def konto_wählen(name):
         return alle
     treffer = [k for k in alle if k["label"] == name or k["user"] == name]
     if not treffer:
-        raise ValueError(f"Konto nicht gefunden: {name}. Bitte /mailbox:setup ausführen.")
+        raise ValueError(f"Konto nicht gefunden: {name}. Bitte /mailmaster:setup ausführen.")
     return treffer
 
 
@@ -127,7 +127,7 @@ def send_mail(args):
 
     passwort = passwort_lesen(konto["user"])
     if not passwort:
-        raise ValueError(f"Kein Passwort gespeichert für {konto['user']}. Bitte /mailbox:setup ausführen.")
+        raise ValueError(f"Kein Passwort gespeichert für {konto['user']}. Bitte /mailmaster:setup ausführen.")
 
     kontext = ssl.create_default_context()
     if server.get("smtp_starttls", True):
@@ -210,7 +210,7 @@ def main():
                 antworte(id_, {
                     "protocolVersion": anfrage["params"].get("protocolVersion", "2025-06-18"),
                     "capabilities": {"tools": {}},
-                    "serverInfo": {"name": "mailbox", "version": "0.4.0"},
+                    "serverInfo": {"name": "mailmaster", "version": "0.4.0"},
                 })
             elif methode == "tools/list":
                 antworte(id_, {"tools": [

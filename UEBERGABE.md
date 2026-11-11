@@ -1,27 +1,27 @@
-# Übergabe: mailbox (Claude-Plugin für E-Mails)
+# Übergabe: mailmaster (Claude-Plugin für E-Mails)
 
 ## Eindeutiger Name
 
 Den Namen **immer vollständig** angeben, weil es viele Mail-Programme gibt:
 
-    mailbox@mailbox-plugins
+    mailmaster@mailmaster-plugins
 
-- Repo: https://github.com/sunniboi/claude-mailbox
-- Marketplace: `mailbox-plugins`
-- Plugin: `mailbox`
+- Repo: https://github.com/sunniboi/claude-mailmaster
+- Marketplace: `mailmaster-plugins`
+- Plugin: `mailmaster`
 
 ## Installation (auf jedem Rechner einmal)
 
 In Claude Code eingeben:
 
-    /plugin marketplace add sunniboi/claude-mailbox
-    /plugin install mailbox@mailbox-plugins
+    /plugin marketplace add sunniboi/claude-mailmaster
+    /plugin install mailmaster@mailmaster-plugins
 
 Danach Claude Code neu starten.
 
 ## Einrichten
 
-    /mailbox:setup
+    /mailmaster:setup
 
 Es öffnet sich ein Fenster. E-Mail-Adresse eingeben, Passwort einfügen, „Testen und speichern“. Bei Gmail und Yahoo braucht es ein App-Passwort, die Schritte stehen im Fenster.
 

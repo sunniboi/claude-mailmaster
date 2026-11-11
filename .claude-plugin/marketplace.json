@@ -1,12 +1,12 @@
 {
-  "name": "mailbox-plugins",
+  "name": "mailmaster-plugins",
   "owner": {
     "name": "sunniboi"
   },
   "plugins": [
     {
-      "name": "mailbox",
-      "source": "./plugins/mailbox",
+      "name": "mailmaster",
+      "source": "./plugins/mailmaster",
       "description": "Liest E-Mails aus beliebigen IMAP-Postfächern direkt in Claude"
     }
   ]
