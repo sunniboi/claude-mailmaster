@@ -5,8 +5,10 @@ import imaplib
 import json
 import ssl
 import tkinter as tk
+import webbrowser
 from tkinter import messagebox
 
+from anleitung import APP_PASSWORT_ANLEITUNG, anbieter_schlüssel
 from setup import erkenne_server, lade, speichere_geschützt, KONFIG, PASSWORT_DATEI
 
 HINWEISE = {
@@ -69,6 +71,14 @@ class Einrichtung:
         tk.Label(self.rahmen, text=self.adresse_wert, font=("", 12, "bold")).pack(anchor="w")
         tk.Label(self.rahmen, text=f"Server: {self.server['host']}:{self.server['port']}", fg="gray").pack(anchor="w")
         tk.Label(self.rahmen, text=hinweis_für(domain, self.server["host"]), wraplength=420, justify="left", fg="#b35900").pack(anchor="w", pady=(10, 10))
+        schlüssel = anbieter_schlüssel(self.server["host"])
+        if schlüssel:
+            anleitung = APP_PASSWORT_ANLEITUNG[schlüssel]
+            tk.Label(self.rahmen, text=anleitung["titel"], font=("", 11, "bold")).pack(anchor="w")
+            tk.Label(self.rahmen, text="\n".join(f"{n}. {t}" for n, t in enumerate(anleitung["schritte"], 1)),
+                     wraplength=420, justify="left").pack(anchor="w", pady=(2, 6))
+            tk.Button(self.rahmen, text="Seite im Browser öffnen", command=lambda: webbrowser.open(anleitung["url"])).pack(anchor="w", pady=(0, 10))
+            webbrowser.open(anleitung["url"])
         tk.Label(self.rahmen, text="Passwort (App-Passwort, falls nötig)").pack(anchor="w")
         self.passwort = tk.Entry(self.rahmen, show="•", width=45)
         self.passwort.pack(fill="x", pady=(4, 12))

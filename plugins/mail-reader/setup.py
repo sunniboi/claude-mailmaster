@@ -10,6 +10,8 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from anleitung import zeige_anleitung
+
 ORDNER = Path.home() / ".config/mail-reader"
 KONFIG = ORDNER / "accounts.json"
 PASSWORT_DATEI = ORDNER / "passwords.json"
@@ -88,8 +90,7 @@ def einrichten():
         print(f"Suche Server für {domain} ...")
         server = erkenne_server(domain)
         print(f"Gefunden: {server['host']}:{server['port']}")
-        if "gmail" in domain or server["host"].endswith("gmail.com"):
-            print("Hinweis: Bei Gmail brauchst du ein App-Passwort (myaccount.google.com → Sicherheit → App-Passwörter).")
+        zeige_anleitung(server["host"])
         passwort = getpass.getpass("Passwort (unsichtbar): ")
         fehler = teste_anmeldung(server, adresse, passwort)
         if fehler:
