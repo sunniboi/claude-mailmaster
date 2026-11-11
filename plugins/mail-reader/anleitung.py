@@ -1,6 +1,20 @@
 """Schritt-für-Schritt-Anleitung für App-Passwörter, öffnet die Anbieterseite im Browser."""
 
+import shutil
+import subprocess
 import webbrowser
+
+CHROME_PROGRAMME = ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"]
+
+
+def öffne_in_chrome(url):
+    for programm in CHROME_PROGRAMME:
+        pfad = shutil.which(programm)
+        if pfad:
+            subprocess.Popen([pfad, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return True
+    print("Chrome wurde nicht gefunden. Bitte die Seite manuell öffnen:", url)
+    return False
 
 APP_PASSWORT_ANLEITUNG = {
     "gmail": {
@@ -44,6 +58,6 @@ def zeige_anleitung(host, öffnen=True):
     for nummer, schritt in enumerate(anleitung["schritte"], 1):
         print(f"  {nummer}. {schritt}")
     if öffnen:
-        webbrowser.open(anleitung["url"])
-        print(f"  (Seite im Browser geöffnet: {anleitung['url']})")
+        if öffne_in_chrome(anleitung["url"]):
+            print(f"  (Seite in Chrome geöffnet: {anleitung['url']})")
     return anleitung["url"]
