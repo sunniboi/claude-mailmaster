@@ -73,7 +73,12 @@ def search_mail(args):
         try:
             imap = verbinde(konto)
         except Exception as fehler:
-            ausgabe.append(f"  Fehler: {fehler}")
+            if "authentication failed" in str(fehler).lower():
+                ausgabe.append("  Anmeldung abgelehnt. Bitte prüfen: 1) IMAP ist beim Anbieter eingeschaltet, "
+                               "2) das Passwort stimmt, 3) manche Anbieter wie web.de verlangen ein App-Passwort. "
+                               "Danach das Passwort mit dem Einrichtungsskript neu eintragen.")
+            else:
+                ausgabe.append(f"  Fehler: {fehler}")
             continue
         try:
             imap.select("INBOX", readonly=True)
