@@ -90,7 +90,12 @@ class Einrichtung:
     def passwort_feld(self, domain):
         self.leeren()
         tk.Label(self.rahmen, text=self.adresse_wert, font=("", 12, "bold")).pack(anchor="w")
-        tk.Label(self.rahmen, text=f"Server: {self.server['host']}:{self.server['port']}", fg="gray").pack(anchor="w")
+        zeile_server = tk.Frame(self.rahmen)
+        zeile_server.pack(fill="x", anchor="w")
+        tk.Label(zeile_server, text="IMAP-Server:").pack(side="left")
+        self.host_feld = mit_einfügen(tk.Entry(zeile_server, width=30))
+        self.host_feld.insert(0, self.server["host"])
+        self.host_feld.pack(side="left", padx=(6, 0))
         tk.Label(self.rahmen, text=hinweis_für(domain, self.server["host"]), wraplength=420, justify="left", fg="#b35900").pack(anchor="w", pady=(10, 10))
         schlüssel = anbieter_schlüssel(self.server["host"])
         if schlüssel:
@@ -115,6 +120,7 @@ class Einrichtung:
         if not passwort:
             messagebox.showerror("Fehlt", "Bitte das Passwort eingeben.")
             return
+        self.server["host"] = self.host_feld.get().strip() or self.server["host"]
         try:
             imap = imaplib.IMAP4_SSL(self.server["host"], self.server["port"], ssl_context=ssl.create_default_context())
             imap.login(self.adresse_wert, passwort)
