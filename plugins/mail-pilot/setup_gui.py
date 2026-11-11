@@ -9,7 +9,7 @@ from tkinter import messagebox
 
 from anleitung import anbieter_schlüssel, anleitung, öffne_in_chrome
 from i18n import t
-from geheimnisse import keyring_installieren, keyring_verfügbar, passwort_speichern
+from geheimnisse import keyring_installieren, keyring_verfügbar, passwort_löschen, passwort_speichern
 from setup import erkenne_server, speichere_geschützt, KONFIG
 
 BG = "#050b14"
@@ -125,12 +125,12 @@ class Einrichtung:
         if not messagebox.askyesno(t("del_title"), t("del_text", adresse=konto["user"])):
             return
         self.konten = [k for k in self.konten if k["user"] != konto["user"]]
-        speichere_geschützt(KONFIG, self.konten)
         try:
-            import keyring
-            keyring.delete_password("mail-pilot", konto["user"])
-        except Exception:
-            pass
+            passwort_löschen(konto["user"])
+        except Exception as fehler:
+            messagebox.showerror(t("kr_title"), f"{t('kr_failed')}\n\n{fehler}")
+            return
+        speichere_geschützt(KONFIG, self.konten)
         self.adresse_feld()
 
     def weiter(self):

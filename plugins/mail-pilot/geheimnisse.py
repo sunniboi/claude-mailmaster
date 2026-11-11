@@ -63,3 +63,21 @@ def passwort_lesen(adresse):
 def passwort_speichern(adresse, passwort):
     import keyring
     keyring.set_password(DIENST, adresse, passwort)
+
+
+def passwort_löschen(adresse):
+    if ALTE_DATEI.exists():
+        daten = json.loads(ALTE_DATEI.read_text(encoding="utf-8"))
+        if adresse in daten:
+            daten.pop(adresse)
+            if daten:
+                ALTE_DATEI.write_text(json.dumps(daten, indent=2, ensure_ascii=False), encoding="utf-8")
+            else:
+                ALTE_DATEI.unlink()
+    if keyring_verfügbar():
+        import keyring
+        from keyring.errors import PasswordDeleteError
+        try:
+            keyring.delete_password(DIENST, adresse)
+        except PasswordDeleteError:
+            pass
