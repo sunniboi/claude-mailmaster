@@ -9,10 +9,15 @@ import email
 import imaplib
 import json
 import os
+import smtplib
 import ssl
 import sys
 from email.header import decode_header, make_header
+from email.message import EmailMessage
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+from setup import erkenne_server  # noqa: E402
 
 KONFIG = Path(os.environ.get("MAIL_READER_CONFIG", Path.home() / ".config/mail-reader/accounts.json"))
 
@@ -89,7 +94,76 @@ def search_mail(args):
     return "\n".join(ausgabe)
 
 
+def postausgang(konto):
+    if not konto.get("smtp_host"):
+        gefunden = erkenne_server(konto["user"].split("@", 1)[1].lower())
+        konto = {**konto, **gefunden}
+    return konto
+
+
+def send_mail(args):
+    konten_gefunden = konto_wählen(args.get("account"))
+    if len(konten_gefunden) != 1:
+        raise ValueError("Bitte genau ein Absenderkonto angeben (Adresse oder Label).")
+    konto = konten_gefunden[0]
+    empfaenger = args.get("to", "").strip()
+    betreff = args.get("subject", "").strip()
+    text = args.get("body", "")
+    if not empfaenger or "@" not in empfaenger or not betreff:
+        raise ValueError("Empfänger (to) und Betreff (subject) sind Pflicht.")
+    vorschau = (
+        f"VORSCHAU (noch nicht gesendet)\n"
+        f"Von: {konto['user']}\nAn: {empfaenger}\nBetreff: {betreff}\n\n{text}"
+    )
+    if args.get("confirm") is not True:
+        return vorschau + "\n\nZum Senden muss der Nutzer ausdrücklich zustimmen. Erst danach confirm=true setzen."
+
+    server = postausgang(konto)
+    nachricht = EmailMessage()
+    nachricht["From"] = konto["user"]
+    nachricht["To"] = empfaenger
+    nachricht["Subject"] = betreff
+    nachricht.set_content(text)
+
+    passwoerter = json.loads(PASSWORT_DATEI.read_text(encoding="utf-8")) if PASSWORT_DATEI.exists() else {}
+    passwort = passwoerter.get(konto["user"])
+    if not passwort:
+        raise ValueError(f"Kein Passwort gespeichert für {konto['user']}. Bitte /mail-reader:setup ausführen.")
+
+    kontext = ssl.create_default_context()
+    if server.get("smtp_starttls", True):
+        with smtplib.SMTP(server["smtp_host"], server.get("smtp_port", 587), timeout=30) as smtp:
+            smtp.starttls(context=kontext)
+            smtp.login(konto["user"], passwort)
+            smtp.send_message(nachricht)
+    else:
+        with smtplib.SMTP_SSL(server["smtp_host"], server.get("smtp_port", 465), context=kontext, timeout=30) as smtp:
+            smtp.login(konto["user"], passwort)
+            smtp.send_message(nachricht)
+    return f"Gesendet von {konto['user']} an {empfaenger}."
+
+
 WERKZEUGE = {
+    "send_mail": {
+        "beschreibung": (
+            "Sendet eine E-Mail von einem eingerichteten Konto. ZWEI SCHRITTE: "
+            "1) Zuerst OHNE confirm (oder confirm=false) aufrufen, dann dem Nutzer Vorschau zeigen. "
+            "2) Nur wenn der Nutzer ausdrücklich zustimmt, mit confirm=true erneut aufrufen. "
+            "Niemals ohne ausdrückliche Zustimmung des Nutzers confirm=true setzen."
+        ),
+        "schema": {
+            "type": "object",
+            "properties": {
+                "account": {"type": "string", "description": "Absenderkonto: Adresse oder Label"},
+                "to": {"type": "string", "description": "Empfänger-Adresse"},
+                "subject": {"type": "string", "description": "Betreff"},
+                "body": {"type": "string", "description": "Text der Mail"},
+                "confirm": {"type": "boolean", "description": "true nur nach ausdrücklicher Zustimmung des Nutzers"},
+            },
+            "required": ["account", "to", "subject", "body"],
+        },
+        "funktion": send_mail,
+    },
     "list_accounts": {
         "beschreibung": "Listet die konfigurierten Postfächer auf.",
         "schema": {"type": "object", "properties": {}},

@@ -195,7 +195,7 @@ class Einrichtung:
             messagebox.showerror(t("err_login_title"), t("err_login_text", error=fehler))
             return
         self.konten = [k for k in self.konten if k["user"] != self.adresse_wert]
-        self.konten.append({"label": self.adresse_wert, "host": self.server["host"], "port": self.server["port"], "user": self.adresse_wert})
+        self.konten.append({"label": self.adresse_wert, "user": self.adresse_wert, **self.server})
         self.passwoerter[self.adresse_wert] = passwort
         speichere_geschützt(KONFIG, self.konten)
         speichere_geschützt(PASSWORT_DATEI, self.passwoerter)

@@ -25,11 +25,17 @@ def lade_xml(url):
         return None
 
 
-def imap_aus_xml(wurzel):
-    server = wurzel.find(".//incomingServer[@type='imap']")
-    if server is None:
+def server_aus_xml(wurzel):
+    imap = wurzel.find(".//incomingServer[@type='imap']")
+    smtp = wurzel.find(".//outgoingServer[@type='smtp']")
+    if imap is None or not imap.findtext("hostname"):
         return None
-    return {"host": server.findtext("hostname"), "port": int(server.findtext("port") or 993)}
+    ergebnis = {"host": imap.findtext("hostname"), "port": int(imap.findtext("port") or 993)}
+    if smtp is not None and smtp.findtext("hostname"):
+        ergebnis["smtp_host"] = smtp.findtext("hostname")
+        ergebnis["smtp_port"] = int(smtp.findtext("port") or 587)
+        ergebnis["smtp_starttls"] = (smtp.findtext("socketType") or "").upper() != "SSL"
+    return ergebnis
 
 
 def erkenne_server(domain):
@@ -41,10 +47,13 @@ def erkenne_server(domain):
     for url in quellen:
         wurzel = lade_xml(url)
         if wurzel is not None:
-            gefunden = imap_aus_xml(wurzel)
-            if gefunden and gefunden["host"]:
+            gefunden = server_aus_xml(wurzel)
+            if gefunden:
                 return gefunden
-    return {"host": f"imap.{domain}", "port": 993}
+    return {
+        "host": f"imap.{domain}", "port": 993,
+        "smtp_host": f"smtp.{domain}", "smtp_port": 587, "smtp_starttls": True,
+    }
 
 
 def lade(datei):
@@ -105,7 +114,7 @@ def einrichten():
             continue
         print("Anmeldung erfolgreich.")
         konten = [k for k in konten if k["user"] != adresse]
-        konten.append({"label": adresse, "host": server["host"], "port": server["port"], "user": adresse})
+        konten.append({"label": adresse, "user": adresse, **{k: v for k, v in server.items()}})
         passwoerter[adresse] = passwort
         speichere_geschützt(KONFIG, konten)
         speichere_geschützt(PASSWORT_DATEI, passwoerter)

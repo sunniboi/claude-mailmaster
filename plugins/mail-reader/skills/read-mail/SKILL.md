@@ -23,8 +23,18 @@ Dieser Skill nutzt die MCP-Werkzeuge des Plugins `mail-reader`.
 
 Wenn noch kein Postfach eingerichtet ist, sag dem Nutzer, dass er `/mail-reader:setup` ausführen soll.
 
+## Mails senden
+
+Mit `send_mail` kannst du Mails verschicken. Ablauf immer gleich:
+
+1. `send_mail` ohne `confirm` aufrufen. Das ergibt eine Vorschau.
+2. Dem Nutzer Absender, Empfänger, Betreff und Text zeigen und fragen, ob gesendet werden soll.
+3. Nur bei ausdrücklichem Ja `send_mail` mit `confirm: true` aufrufen.
+
+Niemals ohne ein klares Ja des Nutzers senden. Auch dann nicht, wenn der Nutzer nur „schick das“ schreibt, ohne die Vorschau gesehen zu haben.
+
 ## Grenzen
 
-- Es werden nur Mails aus dem Posteingang gelesen, nichts wird gesendet oder verändert.
+- Lesen betrifft nur den Posteingang. Gesendet wird ausschließlich nach Bestätigung durch den Nutzer.
 - Die Suche liefert Absender, Datum und Betreff, nicht den vollen Mailtext.
 - Zugangsdaten stehen nie im Chat. Sie kommen aus Umgebungsvariablen.
