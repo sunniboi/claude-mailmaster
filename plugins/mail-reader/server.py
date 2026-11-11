@@ -131,7 +131,7 @@ def main():
                 antworte(id_, {
                     "protocolVersion": anfrage["params"].get("protocolVersion", "2025-06-18"),
                     "capabilities": {"tools": {}},
-                    "serverInfo": {"name": "mail-reader", "version": "0.2.0"},
+                    "serverInfo": {"name": "mail-reader", "version": "0.3.0"},
                 })
             elif methode == "tools/list":
                 antworte(id_, {"tools": [
