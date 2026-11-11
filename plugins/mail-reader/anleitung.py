@@ -10,9 +10,9 @@ CHROME_PFADE = {
     "linux": ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"],
     "darwin": ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"],
     "win32": [
-        os.path.join(os.environ.get("ProgramFiles", r"C:\\Program Files"), r"Google\\Chrome\\Application\\chrome.exe"),
-        os.path.join(os.environ.get("ProgramFiles(x86)", r"C:\\Program Files (x86)"), r"Google\\Chrome\\Application\\chrome.exe"),
-        os.path.join(os.environ.get("LOCALAPPDATA", ""), r"Google\\Chrome\\Application\\chrome.exe"),
+        os.path.join(os.environ.get("ProgramFiles", r"C:\Program Files"), r"Google\Chrome\Application\chrome.exe"),
+        os.path.join(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"), r"Google\Chrome\Application\chrome.exe"),
+        os.path.join(os.environ.get("LOCALAPPDATA", ""), r"Google\Chrome\Application\chrome.exe"),
     ],
 }
 
