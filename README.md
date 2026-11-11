@@ -13,7 +13,7 @@ In Claude Code:
 
 Einmal im Terminal ausführen:
 
-    python3 ~/.claude/plugins/marketplaces/mail-reader-plugins/plugins/mail-reader/setup.py
+    python3 ~/Downloads/mail-reader-marketplace/plugins/mail-reader/setup.py
 
 Das Skript fragt Anbieter, E-Mail-Adresse und Passwort ab. Die Passwörter landen in `~/.config/mail-reader/passwords.json` mit Dateirechten nur für dich. Gmail braucht ein App-Passwort, das normale Passwort funktioniert bei IMAP nicht.
 
