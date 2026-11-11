@@ -15,6 +15,7 @@ import email
 import imaplib
 import json
 import os
+import ssl
 import sys
 from email.header import decode_header, make_header
 from pathlib import Path
@@ -42,7 +43,7 @@ def verbinde(konto):
     passwort = os.environ.get(konto["password_env"])
     if not passwort:
         raise ValueError(f"Umgebungsvariable {konto['password_env']} ist nicht gesetzt")
-    imap = imaplib.IMAP4_SSL(konto["host"], konto.get("port", 993))
+    imap = imaplib.IMAP4_SSL(konto["host"], konto.get("port", 993), ssl_context=ssl.create_default_context())
     imap.login(konto["user"], passwort)
     return imap
 
@@ -60,7 +61,9 @@ def list_accounts(_args):
 
 def search_mail(args):
     suche = args.get("search") or "ALL"
-    maximum = int(args.get("max_results", 5))
+    if any(ord(z) < 32 or ord(z) == 127 for z in suche):
+        raise ValueError("Suchkriterium enthält unerlaubte Steuerzeichen")
+    maximum = min(max(int(args.get("max_results", 5)), 1), 50)
     ausgabe = []
     for konto in konto_wählen(args.get("account")):
         imap = verbinde(konto)
