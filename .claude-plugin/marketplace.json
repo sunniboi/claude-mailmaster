@@ -1,12 +1,12 @@
 {
-  "name": "mail-pilot-plugins",
+  "name": "mailbox-plugins",
   "owner": {
     "name": "sunniboi"
   },
   "plugins": [
     {
-      "name": "mail-pilot",
-      "source": "./plugins/mail-pilot",
+      "name": "mailbox",
+      "source": "./plugins/mailbox",
       "description": "Liest E-Mails aus beliebigen IMAP-Postfächern direkt in Claude"
     }
   ]

@@ -1,4 +1,4 @@
-# mail-pilot
+# mailbox
 
 Claude-Plugin zum Lesen von E-Mails aus beliebigen IMAP-Postfächern (Gmail, Freenet, GMX, web.de und andere).
 
@@ -6,16 +6,16 @@ Claude-Plugin zum Lesen von E-Mails aus beliebigen IMAP-Postfächern (Gmail, Fre
 
 In Claude Code:
 
-    /plugin marketplace add sunniboi/claude-mail-pilot
-    /plugin install mail-pilot@mail-pilot-plugins
+    /plugin marketplace add sunniboi/claude-mailbox
+    /plugin install mailbox@mailbox-plugins
 
 ## Einrichtung
 
 Einmal im Terminal ausführen:
 
-    python3 ~/Downloads/mail-pilot-marketplace/plugins/mail-pilot/setup.py
+    python3 ~/Downloads/mailbox-marketplace/plugins/mailbox/setup.py
 
-Das Skript fragt nur E-Mail-Adresse und Passwort ab und findet die Server selbst, wie Thunderbird. Die Passwörter landen in `~/.config/mail-pilot/passwords.json` mit Dateirechten nur für dich. Gmail braucht ein App-Passwort, das normale Passwort funktioniert bei IMAP nicht.
+Das Skript fragt nur E-Mail-Adresse und Passwort ab und findet die Server selbst, wie Thunderbird. Die Passwörter landen in `~/.config/mailbox/passwords.json` mit Dateirechten nur für dich. Gmail braucht ein App-Passwort, das normale Passwort funktioniert bei IMAP nicht.
 
 Danach Claude Code neu starten.
 

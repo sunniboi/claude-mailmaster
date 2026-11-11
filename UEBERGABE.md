@@ -1,27 +1,27 @@
-# Übergabe: mail-pilot (Claude-Plugin für E-Mails)
+# Übergabe: mailbox (Claude-Plugin für E-Mails)
 
 ## Eindeutiger Name
 
 Den Namen **immer vollständig** angeben, weil es viele Mail-Programme gibt:
 
-    mail-pilot@mail-pilot-plugins
+    mailbox@mailbox-plugins
 
-- Repo: https://github.com/sunniboi/claude-mail-pilot
-- Marketplace: `mail-pilot-plugins`
-- Plugin: `mail-pilot`
+- Repo: https://github.com/sunniboi/claude-mailbox
+- Marketplace: `mailbox-plugins`
+- Plugin: `mailbox`
 
 ## Installation (auf jedem Rechner einmal)
 
 In Claude Code eingeben:
 
-    /plugin marketplace add sunniboi/claude-mail-pilot
-    /plugin install mail-pilot@mail-pilot-plugins
+    /plugin marketplace add sunniboi/claude-mailbox
+    /plugin install mailbox@mailbox-plugins
 
 Danach Claude Code neu starten.
 
 ## Einrichten
 
-    /mail-pilot:setup
+    /mailbox:setup
 
 Es öffnet sich ein Fenster. E-Mail-Adresse eingeben, Passwort einfügen, „Testen und speichern“. Bei Gmail und Yahoo braucht es ein App-Passwort, die Schritte stehen im Fenster.
 

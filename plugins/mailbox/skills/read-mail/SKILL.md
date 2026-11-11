@@ -1,11 +1,11 @@
 ---
 name: read-mail
-description: Use when the user asks to check, search, or find emails in their own mailboxes, e.g. for verification codes, new messages, or mail from a specific sender. Reads mail through the mail-pilot MCP tools over IMAP.
+description: Use when the user asks to check, search, or find emails in their own mailboxes, e.g. for verification codes, new messages, or mail from a specific sender. Reads mail through the mailbox MCP tools over IMAP.
 ---
 
 # Mails lesen (IMAP)
 
-Dieser Skill nutzt die MCP-Werkzeuge des Plugins `mail-pilot`.
+Dieser Skill nutzt die MCP-Werkzeuge des Plugins `mailbox`.
 
 ## Vorgehen
 
@@ -21,7 +21,7 @@ Dieser Skill nutzt die MCP-Werkzeuge des Plugins `mail-pilot`.
 
 ## Einrichtung
 
-Wenn noch kein Postfach eingerichtet ist, sag dem Nutzer, dass er `/mail-pilot:setup` ausführen soll.
+Wenn noch kein Postfach eingerichtet ist, sag dem Nutzer, dass er `/mailbox:setup` ausführen soll.
 
 ## Mails senden
 

@@ -5,9 +5,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-DIENST = "mail-pilot"
+DIENST = "mailbox"
 ALTE_DATEI = Path.home() / ".config/mail-reader/passwords.json"
-LIBS = Path.home() / ".local/share/mail-pilot/libs"
+LIBS = Path.home() / ".local/share/mailbox/libs"
 
 if LIBS.exists() and str(LIBS) not in sys.path:
     sys.path.insert(0, str(LIBS))
