@@ -42,17 +42,30 @@ Wichtig:
 - Claude zeigt dir die Mail im Chat (Absender, Empfänger, Betreff, Text).
 - Du schreibst **„absenden“**. Erst dann wird gesendet.
 - In Variante A kann pro Konto eine Bestätigung im Fenster verlangt werden. Das ist standardmäßig eingeschaltet.
+- Online-Variante: Mit **html** kann eine HTML-Fassung (Fettdruck, Absätze) mitgesendet werden. Die Freigabeseite zeigt sie in einer Vorschau ohne Skripte.
+- **Antworten:** `reply_mail` antwortet auf eine Mail per UID. Die Antwort hängt sich mit In-Reply-To und References an den Verlauf.
 
 ## Ordner
 
 - **Alle Ordner eines Kontos anzeigen:** Spam, Papierkorb, Gesendet, Entwürfe und eigene Ordner. Die Namen kommen direkt vom Anbieter.
 - **In einem Ordner suchen oder lesen:** Der Standard ist der Posteingang, ein anderer Ordner kann angegeben werden.
-- **In allen Ordnern suchen:** Eine Suche über alle Ordner eines Kontos, mit Ordnername je Treffer.
-- **Mails verschieben und Ordner anlegen:** Ein verschobener Eintrag wird nur aus dem Quellordner entfernt, wenn der Anbieter das sicher unterstützt. Sonst bleibt die Mail im Quellordner, und es wird nichts gelöscht.
+- **In allen Ordnern suchen:** Eine Suche über alle Ordner eines Kontos, mit Ordnername je Treffer. Ordner, die nicht geöffnet werden können, werden übersprungen.
+- **Löschen:** `delete_mail` verschiebt die Mail in den Papierkorb des Kontos. Den Papierkorb erkennt der Server am Anbieter-Flag `\Trash` (bei Freenet z. B. `INBOX.Trash`). Nichts wird endgültig entfernt.
+- **Verschieben:** `move_mail` nennt den Zielordner. Auch „Papierkorb“, „Spam“, „Gesendet“, „Entwürfe“ und „Archiv“ werden dem echten Ordnernamen zugeordnet. Die Mail wird mit MOVE oder UID EXPUNGE aus dem Quellordner entfernt. Wenn der Anbieter beides nicht kann, wird vorher abgebrochen und nichts kopiert, damit keine Doppel entstehen.
+- **Ordner anlegen:** `create_folder`.
+
+## Anhänge
+
+- `list_attachments` zeigt die Anhänge einer Mail (Name, Typ, Größe).
+- `download_attachment` holt einen Anhang: Textdateien als Text, Bilder und andere Dateien als Datei (höchstens 5 MB). Ob Claude den Inhalt einer PDF lesen kann, hängt vom Programm ab, mit dem du Claude nutzt.
 
 ## Lesen
 
-Mailtexte gelten als **unvertrauenswürdige Daten**. Sie werden im Ausgabetext deutlich gekennzeichnet. Eine Mail kann Anweisungen enthalten, die Claude nicht ausführen darf. Claude soll Mailinhalte nur anzeigen und zusammenfassen.
+Mailtexte gelten als **unvertrauenswürdige Daten**. Sie werden im Ausgabetext deutlich gekennzeichnet. Eine Mail kann Anweisungen enthalten, die Claude nicht ausführen darf. Claude soll Mailinhalte nur anzeigen und zusammenfassen. Wenn nur eine HTML-Fassung vorhanden ist, wird der Text daraus gewonnen.
+
+## Verbindungen
+
+Pro Postfach läuft immer nur eine Verbindung gleichzeitig. Bei Verbindungsabbrüchen wird es noch zweimal versucht. Ein falsches Passwort wird nicht wiederholt, und die Fehlermeldung zeigt die genaue Antwort des Anbieters.
 
 ## Bekannte Einschränkungen
 
