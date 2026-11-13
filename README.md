@@ -50,6 +50,7 @@ Wichtig:
 - **Alle Ordner eines Kontos anzeigen:** Spam, Papierkorb, Gesendet, Entwürfe und eigene Ordner. Die Namen kommen direkt vom Anbieter.
 - **In einem Ordner suchen oder lesen:** Der Standard ist der Posteingang, ein anderer Ordner kann angegeben werden.
 - **In allen Ordnern suchen:** Eine Suche über alle Ordner eines Kontos, mit Ordnername je Treffer. Ordner, die nicht geöffnet werden können, werden übersprungen.
+- **Papierkorb festlegen (empfohlen, wenn Löschen nicht klappt):** In der Cloud Shell `cd server && python3 set_trash.py <adresse> <ordnername>`, z. B. `python3 set_trash.py sunniboi@freenet.de INBOX.Trash`. Den Ordnernamen zeigt `list_folders`. Der Dienst wird danach aktualisiert.
 - **Löschen:** `delete_mail` verschiebt die Mail in den Papierkorb des Kontos. Den Papierkorb erkennt der Server am Anbieter-Flag `\Trash` (bei Freenet z. B. `INBOX.Trash`). Nichts wird endgültig entfernt.
 - **Verschieben:** `move_mail` nennt den Zielordner. Auch „Papierkorb“, „Spam“, „Gesendet“, „Entwürfe“ und „Archiv“ werden dem echten Ordnernamen zugeordnet. Die Mail wird mit MOVE oder UID EXPUNGE aus dem Quellordner entfernt. Wenn der Anbieter beides nicht kann, wird vorher abgebrochen und nichts kopiert, damit keine Doppel entstehen.
 - **Ordner anlegen:** `create_folder`.

@@ -214,13 +214,24 @@ def _mit_flag(liste, flag):
     return None
 
 
+def _papierkorb(konto, liste):
+    """Papierkorb: zuerst der im Konto eingetragene Ordner (trash_folder), sonst Flag oder Namen."""
+    eingetragen = (konto.get("trash_folder") or "").strip()
+    if eingetragen:
+        if eingetragen not in [n for n, _ in liste]:
+            raise ValueError(f"Der eingetragene Papierkorb '{eingetragen}' existiert bei diesem Konto nicht. "
+                             "Bitte mit list_folders den richtigen Namen ermitteln und eintragen lassen.")
+        return eingetragen
+    return _mit_flag(liste, "\\Trash")
+
+
 def _ziel_ordner(imap, konto, liste, nach):
     """Ordnername, den Claude angegeben hat, in den echten Ordnernamen des Anbieters übersetzen."""
     if nach in [n for n, _ in liste]:
         return nach
     flag = ALIAS.get(nach.lower())
     if flag:
-        gefunden = _mit_flag(liste, flag)
+        gefunden = _papierkorb(konto, liste) if flag == "\\Trash" else _mit_flag(liste, flag)
         if gefunden:
             return gefunden
     for name, _ in liste:
@@ -600,7 +611,7 @@ def delete_mail(args):
     von = args.get("folder") or "INBOX"
     with _sitzung(konto) as imap:
         liste = _ordnerliste(imap, konto, neu=True)
-        papierkorb = _mit_flag(liste, "\\Trash")
+        papierkorb = _papierkorb(konto, liste)
         if not papierkorb:
             raise ValueError("Kein Papierkorb gefunden. Mit list_folders die Ordner prüfen.")
         if von.lower() == papierkorb.lower():
