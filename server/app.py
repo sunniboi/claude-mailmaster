@@ -6,6 +6,8 @@ Konfiguration über Umgebungsvariablen:
 - MAILMASTER_NTFY_TOPIC: geheimer Name eines ntfy-Themas, auf dem dein Handy Freigaben bekommt
 - MAILMASTER_PUBLIC_URL: öffentliche Adresse dieses Servers, für den Freigabe-Link
 - MAILMASTER_CHAT_FREIGABE: "1" = Mails nach Chat-Bestätigung direkt senden (ohne Handy)
+- MAILMASTER_MAX_PRO_STUNDE: höchstens so viele Mails pro Stunde je Postfach (Standard 10)
+- MAILMASTER_MAX_GESAMT_PRO_STUNDE: höchstens so viele Mails pro Stunde insgesamt (Standard 30)
 """
 
 import base64
@@ -25,7 +27,7 @@ import urllib.request
 from contextlib import contextmanager
 from email.header import decode_header, make_header
 from email.message import EmailMessage
-from email.utils import parseaddr
+from email.utils import formatdate, make_msgid, parseaddr
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from html.parser import HTMLParser
 from urllib.parse import urlparse
@@ -38,6 +40,11 @@ PUBLIC_URL = os.environ.get("MAILMASTER_PUBLIC_URL", "").rstrip("/")
 FREIGABE_GÜLTIG = 600
 ORDNER_CACHE_SEKUNDEN = 300
 ANHANG_MAX = 5 * 1024 * 1024
+# Schutz vor Massenversand: höchstens so viele Mails pro Stunde, je Postfach und insgesamt
+SENDE_MAX_KONTO = int(os.environ.get("MAILMASTER_MAX_PRO_STUNDE", "10"))
+SENDE_MAX_GESAMT = int(os.environ.get("MAILMASTER_MAX_GESAMT_PRO_STUNDE", "30"))
+_sende_zeiten = []
+_sende_lock = threading.Lock()
 _offen = {}
 _sperre = threading.Lock()
 _konto_sperren = {}
@@ -291,7 +298,22 @@ def search_mail(args):
     return "\n".join(ausgabe)
 
 
+def _sendelimit_pruefen(konto):
+    """Zählt Sendeversuche der letzten Stunde. Bei Überschreitung wird nicht gesendet."""
+    jetzt = time.time()
+    with _sende_lock:
+        _sende_zeiten[:] = [(t, u) for t, u in _sende_zeiten if jetzt - t < 3600]
+        if len(_sende_zeiten) >= SENDE_MAX_GESAMT:
+            raise ValueError(f"Sendelimit erreicht: höchstens {SENDE_MAX_GESAMT} Mails pro Stunde insgesamt. "
+                             "Später erneut versuchen.")
+        if sum(1 for _, u in _sende_zeiten if u == konto["user"]) >= SENDE_MAX_KONTO:
+            raise ValueError(f"Sendelimit erreicht: höchstens {SENDE_MAX_KONTO} Mails pro Stunde von {konto['user']}. "
+                             "Später erneut versuchen.")
+        _sende_zeiten.append((jetzt, konto["user"]))
+
+
 def _mail_senden(konto, empfaenger, betreff, text, html_text=None, kopf=None):
+    _sendelimit_pruefen(konto)
     nachricht = EmailMessage()
     nachricht["From"] = konto["user"]
     nachricht["To"] = empfaenger
@@ -638,6 +660,40 @@ def delete_mail(args):
     return f"Mail {uid} aus '{von}' in den Papierkorb '{papierkorb}' verschoben.\n{beschreibung}"
 
 
+def create_draft(args):
+    """Legt einen Entwurf im Entwürfe-Ordner des Kontos ab. Es wird nichts gesendet."""
+    konto = _einzelkonto(args)
+    an = (args.get("to") or "").strip()
+    betreff = (args.get("subject") or "").strip()
+    text = args.get("body", "") or ""
+    html_text = (args.get("html") or "").strip() or None
+    if an and not _gültige_adresse(an):
+        raise ValueError("Empfänger ist keine gültige E-Mail-Adresse.")
+    if not betreff and not text and not html_text:
+        raise ValueError("Ein Entwurf braucht mindestens Betreff oder Text.")
+    nachricht = EmailMessage()
+    nachricht["From"] = konto["user"]
+    if an:
+        nachricht["To"] = an
+    nachricht["Subject"] = betreff
+    nachricht["Date"] = formatdate(localtime=True)
+    nachricht["Message-ID"] = make_msgid(domain=konto["user"].split("@")[-1])
+    nachricht.set_content(text or _html_zu_text(html_text or ""))
+    if html_text:
+        nachricht.add_alternative(html_text, subtype="html")
+    with _sitzung(konto) as imap:
+        liste = _ordnerliste(imap, konto, neu=True)
+        ordner = _mit_flag(liste, "\\Drafts")
+        if not ordner:
+            raise ValueError("Kein Entwürfe-Ordner gefunden. Mit list_folders die Ordner prüfen.")
+        status, _ = imap.append(_ordner_name(ordner), "\\Draft", imaplib.Time2Internaldate(time.time()),
+                                nachricht.as_bytes())
+        if status != "OK":
+            raise ValueError(f"Entwurf konnte nicht abgelegt werden: {status}")
+    _ordner_cache.pop(konto["user"], None)
+    return f"Entwurf in '{ordner}' bei {konto['user']} abgelegt. Es wurde nichts gesendet."
+
+
 def search_all_folders(args):
     suche = _suche_pruefen(args.get("search"))
     maximum = min(max(int(args.get("max_results", 5)), 1), 20)
@@ -693,6 +749,15 @@ WERKZEUGE = {
                    "folder": {"type": "string", "description": "Ordner der Mail, Standard INBOX"}},
                    "required": ["account"]},
         "funktion": delete_mail,
+    },
+    "create_draft": {
+        "beschreibung": ("Legt einen Entwurf im Entwürfe-Ordner des Kontos ab. Es wird nichts gesendet. "
+                         "'to' ist optional. 'html' ist optional."),
+        "schema": {"type": "object", "properties": {"account": {"type": "string"}, "to": {"type": "string"},
+                   "subject": {"type": "string"}, "body": {"type": "string"},
+                   "html": {"type": "string", "description": "Optional: HTML-Fassung"}},
+                   "required": ["account", "subject", "body"]},
+        "funktion": create_draft,
     },
     "search_all_folders": {
         "beschreibung": "Sucht in allen Ordnern eines Kontos auf einmal und zeigt den Ordnernamen je Treffer.",
@@ -784,7 +849,7 @@ def verarbeite(anfrage):
     if methode == "initialize":
         return antwort(id_, {"protocolVersion": anfrage.get("params", {}).get("protocolVersion", PROTOKOLL),
                              "capabilities": {"tools": {}},
-                             "serverInfo": {"name": "mailmaster", "version": "1.1.0"}})
+                             "serverInfo": {"name": "mailmaster", "version": "1.2.0"}})
     if methode == "tools/list":
         return antwort(id_, {"tools": [{"name": n, "description": w["beschreibung"], "inputSchema": w["schema"]}
                                        for n, w in WERKZEUGE.items()]})
