@@ -742,8 +742,8 @@ WERKZEUGE = {
         "funktion": search_mail,
     },
     "send_mail": {
-        "beschreibung": ("Bereitet eine Mail vor. Der Nutzer bekommt sie auf dem Handy zur Freigabe. "
-                         "Vorher den Inhalt im Chat zeigen. 'html' ist optional für Fettdruck, Absätze und Links; "
+        "beschreibung": ("Sendet eine Mail. Vorher den Inhalt im Chat zeigen und auf das Wort 'absenden' vom Nutzer warten. "
+                         "Erst dann aufrufen. Es gibt keine Freigabe auf dem Handy. 'html' ist optional für Fettdruck, Absätze und Links; "
                          "'body' bleibt dann als reine Textfassung erhalten."),
         "schema": {"type": "object", "properties": {
             "account": {"type": "string"}, "to": {"type": "string"}, "subject": {"type": "string"},
@@ -754,7 +754,8 @@ WERKZEUGE = {
     },
     "reply_mail": {
         "beschreibung": ("Antwortet auf eine Mail (uid aus search_mail). Die Antwort landet im selben Verlauf "
-                         "(In-Reply-To und References). Der Nutzer gibt sie wie jede Mail auf dem Handy frei."),
+                         "(In-Reply-To und References). Vorher den Inhalt im Chat zeigen und auf das Wort 'absenden' warten. "
+                         "Es gibt keine Freigabe auf dem Handy."),
         "schema": {"type": "object", "properties": {
             "account": {"type": "string"}, "uid": {"type": "string"},
             "folder": {"type": "string", "description": "Ordner der Original-Mail, Standard INBOX"},
